@@ -20,12 +20,19 @@ class _MyQRsPageState extends State<MyQRsPage> {
       body: ListView.builder(
         itemCount: MyQRsPage.generatedQRs.length,
         itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(MyQRsPage.generatedQRs[index]),
+          return GestureDetector(
             onTap: () {
               // Acción al tocar un QR
               _showQR(MyQRsPage.generatedQRs[index]);
             },
+            child: Container(
+              width: double.infinity,  // Establece un tamaño completo para el contenedor
+              padding: EdgeInsets.all(10),
+              child: ListTile(
+                title: Text(MyQRsPage.generatedQRs[index]),
+                tileColor: Colors.blue[50],  // Color de fondo para hacerlo más visible
+              ),
+            ),
           );
         },
       ),
@@ -38,9 +45,13 @@ class _MyQRsPageState extends State<MyQRsPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('QR correspondiente'),
-        content: QrImageView(
-          data: qrText,
-          size: 200,
+        content: Container(
+          width: 200,   // Establece un tamaño para el contenedor del QR
+          height: 200,  // Asegúrate de que el QR se muestre adecuadamente
+          child: QrImageView(
+            data: qrText,
+            size: 200,   // También puedes ajustar el tamaño del QR aquí
+          ),
         ),
         actions: [
           TextButton(

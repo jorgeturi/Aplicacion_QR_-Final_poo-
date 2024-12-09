@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'my_qrs_page.dart'; // Importamos MyQRsPage para mostrar los QR guardados
+import 'dart:async';
 
 class GenerateQRPage extends StatefulWidget {
   @override
@@ -9,6 +10,9 @@ class GenerateQRPage extends StatefulWidget {
 
 class _GenerateQRPageState extends State<GenerateQRPage> {
   final TextEditingController _controller = TextEditingController();
+  bool isDynamic = false; // Si es un QR dinámico
+  int? expirationTime; // Tiempo de expiración en minutos
+  DateTime? expirationDate; // Fecha y hora de expiración
 
   // Guardar QR generado
   void _saveQR(String qrText) {
@@ -20,6 +24,14 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
       ),
     );
   }
+
+String _generateDynamicQR() {
+  if (isDynamic && expirationTime != null) {
+    expirationDate = DateTime.now().add(Duration(minutes: expirationTime!));
+    return "${_controller.text}|${expirationDate!.toIso8601String()}";
+  }
+  return _controller.text; // Si no es dinámico, solo usamos el texto ingresado
+}
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +50,32 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
               ),
             ),
             SizedBox(height: 20),
+            Row(
+              children: [
+                Text("QR Dinámico: "),
+                Checkbox(
+                  value: isDynamic,
+                  onChanged: (value) {
+                    setState(() {
+                      isDynamic = value!;
+                    });
+                  },
+                ),
+              ],
+            ),
+            if (isDynamic)
+              TextField(
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'Ingrese el tiempo de validez (minutos)',
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    expirationTime = int.tryParse(value);
+                  });
+                },
+              ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 setState(() {});
@@ -48,7 +86,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             _controller.text.isEmpty
                 ? Container()
                 : QrImageView(
-                    data: _controller.text,
+                    data: _generateDynamicQR(),
                     size: 200,
                   ),
             SizedBox(height: 20),
@@ -56,7 +94,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
               onPressed: _controller.text.isEmpty
                   ? null
                   : () {
-                      _saveQR(_controller.text); // Guardamos el QR
+                      _saveQR(_generateDynamicQR()); // Guardamos el QR
                     },
               child: Text('Guardar QR'),
             ),
