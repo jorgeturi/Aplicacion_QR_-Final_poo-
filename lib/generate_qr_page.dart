@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'my_qrs_page.dart'; // Importamos MyQRsPage para mostrar los QR guardados
 
 class GenerateQRPage extends StatefulWidget {
   @override
@@ -9,14 +9,16 @@ class GenerateQRPage extends StatefulWidget {
 
 class _GenerateQRPageState extends State<GenerateQRPage> {
   final TextEditingController _controller = TextEditingController();
-  
-  // Función para guardar el QR
-  Future<void> _saveQR(String qrText) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> savedQRs = prefs.getStringList('savedQRs') ?? [];
-    savedQRs.add(qrText);
-    await prefs.setStringList('savedQRs', savedQRs);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('QR Guardado')));
+
+  // Guardar QR generado
+  void _saveQR(String qrText) {
+    MyQRsPage.addGeneratedQR(qrText); // Llamamos al método para agregar el QR a la lista global
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyQRsPage(), // Llamamos la página de listado
+      ),
+    );
   }
 
   @override
@@ -33,8 +35,6 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
               decoration: InputDecoration(
                 hintText: 'Introduce el texto o URL para el QR',
                 border: OutlineInputBorder(),
-                fillColor: Color(0xFF123456),
-                filled: true,
               ),
             ),
             SizedBox(height: 20),
@@ -45,20 +45,18 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
               child: Text('Generar QR'),
             ),
             SizedBox(height: 20),
-            // Mostrar el QR si el texto no está vacío
             _controller.text.isEmpty
                 ? Container()
                 : QrImageView(
-                    data: _controller.text,  // Pasar el texto directamente al `QrImage`
+                    data: _controller.text,
                     size: 200,
                   ),
             SizedBox(height: 20),
-            // Botón para guardar el QR
             ElevatedButton(
               onPressed: _controller.text.isEmpty
-                  ? null  // Deshabilitar el botón si el campo está vacío
+                  ? null
                   : () {
-                      _saveQR(_controller.text);  // Guardar el QR
+                      _saveQR(_controller.text); // Guardamos el QR
                     },
               child: Text('Guardar QR'),
             ),

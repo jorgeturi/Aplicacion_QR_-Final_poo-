@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'generate_qr_page.dart';
-import 'my_qrs_page.dart';
-
+import 'generate_qr_page.dart'; // Importamos la página de generación
+import 'my_qrs_page.dart'; // Importamos la página para mostrar los QR guardados
 
 void main() {
   runApp(MyApp());
@@ -28,7 +27,6 @@ class QrCodeGenerator extends StatefulWidget {
 
 class _QrCodeGeneratorState extends State<QrCodeGenerator> {
   String data = "https://google.com";
-  int errorCorrectionLevel = 1; // Lo dejamos fijo por ahora, no modificable
   double size = 200.0;  // Tamaño personalizable del QR
 
   @override
@@ -39,8 +37,8 @@ class _QrCodeGeneratorState extends State<QrCodeGenerator> {
         QrImageView(
           data: data,
           size: size,
-          version: 6, // Versión de QR (1-40)
-          errorCorrectionLevel: QrErrorCorrectLevel.L, // Usamos la constante para nivel bajo por ahora
+          version: 6,
+          errorCorrectionLevel: QrErrorCorrectLevel.L,
         ),
         ElevatedButton(
           onPressed: () {
@@ -55,29 +53,21 @@ class _QrCodeGeneratorState extends State<QrCodeGenerator> {
             // Navegar a la página de generación de QR
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => MyQRsPage()),
+              MaterialPageRoute(builder: (context) => GenerateQRPage()), // Navegación correcta
             );
           },
-          child: Text('Cambiar URL'),
+          child: Text('Generar QR'),
         ),
-
         ElevatedButton(
-
           onPressed: () {
-            // Navegar a la página de generación de QR
+            // Navegar a la página de Mis QR
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GenerateQRPage()),
+              MaterialPageRoute(builder: (context) => MyQRsPage()), // Navegación al listado
             );
           },
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.black),
-            foregroundColor: MaterialStateProperty.all(Colors.white),
-            padding: MaterialStateProperty.all(EdgeInsets.symmetric(horizontal: 50, vertical: 10)),
-          ),
-          child: Text('Test'),
+          child: Text('Mis QR'),
         ),
-
       ],
     );
   }
