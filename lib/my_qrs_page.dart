@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+//TO DO
 
 class MyQRsPage extends StatefulWidget {
   static List<String> generatedQRs = []; // Lista estática para almacenar los QR generados
