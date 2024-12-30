@@ -12,8 +12,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'QR Code Example',
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text('QR Code Example')),
+        appBar: AppBar(title: Text('QR Principal')),
         body: Center(child: QrCodeGenerator()),
       ),
     );
@@ -69,6 +70,44 @@ class _QrCodeGeneratorState extends State<QrCodeGenerator> {
           child: Text('Mis QR'),
         ),
       ],
+    );
+  }
+}
+
+
+
+
+
+
+class MenuDesplegable extends StatelessWidget {
+  const MenuDesplegable({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton<String>(
+      // Al seleccionar una opción, se ejecuta esta función
+      onSelected: (String value) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Seleccionaste: $value')),
+        );
+      },
+      // Define las opciones del menú
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(
+          value: 'Opción 1',
+          child: Text('Opción 1'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'Opción 2',
+          child: Text('Opción 2'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'Opción 3',
+          child: Text('Opción 3'),
+        ),
+      ],
+      // Cambia el ícono del botón que abre el menú
+      icon: const Icon(Icons.menu),
     );
   }
 }

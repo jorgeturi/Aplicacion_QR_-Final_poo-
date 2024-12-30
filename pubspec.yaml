@@ -32,8 +32,6 @@ dependencies:
     sdk: flutter
   qr_flutter: ^4.0.0
   intl: ^0.18.0 # Para formatear el timestamp
-  
-
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -43,6 +41,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -92,3 +91,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "imagenes/app_icono.jpg"
