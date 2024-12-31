@@ -14,7 +14,10 @@ class MyApp extends StatelessWidget {
       title: 'QR Code Example',
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text('QR Principal')),
+        appBar: AppBar(title: Text('QR Principal'),
+         actions: const [
+            MenuDesplegable(), // Agregamos el menú desplegable aquí
+          ],),
         body: Center(child: QrCodeGenerator()),
       ),
     );
@@ -87,6 +90,11 @@ class MenuDesplegable extends StatelessWidget {
     return PopupMenuButton<String>(
       // Al seleccionar una opción, se ejecuta esta función
       onSelected: (String value) {
+       if(value == 'Opción 1'){
+          ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('aaaaaaaaaaaaaaaaaaaaaaaaaaa')),
+        );
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Seleccionaste: $value')),
         );
@@ -99,7 +107,13 @@ class MenuDesplegable extends StatelessWidget {
         ),
         const PopupMenuItem<String>(
           value: 'Opción 2',
-          child: Text('Opción 2'),
+          child: Row(
+            children: [
+              Icon(Icons.dark_mode, color: Colors.black), // Icono para la opción 1
+              const SizedBox(width: 8),
+              const Text('Opción 2 (Tema oscuro)'),
+            ],
+          ),
         ),
         const PopupMenuItem<String>(
           value: 'Opción 3',
