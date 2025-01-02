@@ -32,6 +32,7 @@ dependencies:
     sdk: flutter
   qr_flutter: ^4.0.0
   intl: ^0.20.1 # Para formatear el timestamp
+  #qr_code_scanner: ^1.0.0
 
 
   # The following adds the Cupertino Icons font to your application.

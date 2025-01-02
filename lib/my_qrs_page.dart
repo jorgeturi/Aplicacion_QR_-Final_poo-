@@ -102,7 +102,7 @@ class _MyQRsPageState extends State<MyQRsPage> {
                 size: 300,
               ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 60),
             ElevatedButton(
               onPressed: () {
                 setState(() {

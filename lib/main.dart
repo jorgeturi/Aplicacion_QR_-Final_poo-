@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+
 import 'generate_qr_page.dart'; // Importamos la página de generación
 import 'my_qrs_page.dart'; // Importamos la página para mostrar los QR guardados
 
@@ -44,62 +45,89 @@ class _QrCodeGeneratorState extends State<QrCodeGenerator> {
           version: 6,
           errorCorrectionLevel: QrErrorCorrectLevel.L,
         ),
-        ElevatedButton(
+        Boton(
+          texto: 'icono escanear qr',
           onPressed: () {
             setState(() {
-              size = size == 200.0 ? 300.0 : 200.0; // Cambia el tamaño entre 200 y 300
+              size = size == 100.0 ? 200.0 : 100.0; // Cambia el tamaño entre 100 y 200
             });
           },
-          child: Text('Cambiar tamaño del QR'),
         ),
-        ElevatedButton(
+        Boton(
+          texto: 'Generar QR',
           onPressed: () {
-            // Navegar a la página de generación de QR
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => GenerateQRPage()), // Navegación correcta
+              MaterialPageRoute(builder: (context) => GenerateQRPage()),
             );
           },
-          child: Text('Generar QR'),
         ),
-        ElevatedButton(
+        Boton(
+          texto: 'Mis QR',
           onPressed: () {
-            // Navegar a la página de Mis QR
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => MyQRsPage()), // Navegación al listado
+              MaterialPageRoute(builder: (context) => MyQRsPage()),
             );
           },
-          child: Text('Mis QR'),
         ),
       ],
     );
   }
 }
 
+class Boton extends StatelessWidget {
+  final String texto;
+  final VoidCallback onPressed;
+  final EdgeInsetsGeometry margin; // Agregar parámetro para el margen
+
+  const Boton({
+    Key? key,
+    required this.texto,
+    required this.onPressed,
+    this.margin = const EdgeInsets.all(4), // Valor por defecto para el margen
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: margin, // Usamos el margen aquí
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.blue), // Color de fondo cuando el botón está normal
+          foregroundColor: MaterialStateProperty.all(Colors.white), // Color del texto
+          side: MaterialStateProperty.all(BorderSide(color: Colors.black, width: 2)), // Borde negro
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero, // Hace que el botón sea cuadrado
+          )),
+          padding: MaterialStateProperty.all(EdgeInsets.all(16)), // Padding para hacer el botón más grande
+          overlayColor: MaterialStateProperty.all(Colors.grey), // Color cuando se presiona
+        ),
+        child: Text(texto),
+      ),
+    );
+  }
+}
 
 
-
-
-
+// Asegúrate de que esta clase solo esté declarada una vez
 class MenuDesplegable extends StatelessWidget {
   const MenuDesplegable({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
-      // Al seleccionar una opción, se ejecuta esta función
       onSelected: (String value) {
-       if(value == 'Opción 1'){
+        if (value == 'Opción 1') {
           ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('aaaaaaaaaaaaaaaaaaaaaaaaaaa')),
-        );
+            SnackBar(content: Text('aaaaaaaaaaaaaaaaaaaaaaaaaaa')),
+          );
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Seleccionaste: $value')),
         );
       },
-      // Define las opciones del menú
       itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
         const PopupMenuItem<String>(
           value: 'Opción 1',
@@ -109,7 +137,7 @@ class MenuDesplegable extends StatelessWidget {
           value: 'Opción 2',
           child: Row(
             children: [
-              Icon(Icons.dark_mode, color: Colors.black), // Icono para la opción 1
+              Icon(Icons.dark_mode, color: Colors.black),
               const SizedBox(width: 8),
               const Text('Opción 2 (Tema oscuro)'),
             ],
@@ -120,7 +148,6 @@ class MenuDesplegable extends StatelessWidget {
           child: Text('Opción 3'),
         ),
       ],
-      // Cambia el ícono del botón que abre el menú
       icon: const Icon(Icons.menu),
     );
   }
