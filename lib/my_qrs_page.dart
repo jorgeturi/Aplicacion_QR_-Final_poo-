@@ -1,34 +1,38 @@
-import 'dart:io';  // Para trabajar con archivos
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:path_provider/path_provider.dart';  // Para obtener la ruta del sistema de archivos
+import 'package:path_provider/path_provider.dart';
 
 class MyQRsPage extends StatefulWidget {
-  static List<String> generatedQRs = []; // Lista estática para almacenar los QR generados
+  static List<String> generatedQRs = [];
 
   static void addGeneratedQR(String qrText) {
-    generatedQRs.add(qrText); // Método para agregar un nuevo QR
-    saveQRsToFile(); // Guardar cada vez que se agregue un QR
+    generatedQRs.add(qrText);
+    saveQRsToFile();
   }
 
   static Future<void> saveQRsToFile() async {
-    final directory = await getTemporaryDirectory(); // Obtiene el directorio temporal
-    final file = File('${directory.path}/generated_qrs.txt'); // Define el archivo
-
-    // Convierte la lista a un formato de texto (por ejemplo, por saltos de línea)
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/generated_qrs.txt');
     final text = generatedQRs.join('\n');
-    
-    await file.writeAsString(text); // Escribe la lista en el archivo
+    await file.writeAsString(text);
   }
 
   static Future<void> loadQRsFromFile() async {
-    final directory = await getTemporaryDirectory(); // Obtiene el directorio temporal
-    final file = File('${directory.path}/generated_qrs.txt'); // Define el archivo
-
-    // Verifica si el archivo existe
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/generated_qrs.txt');
     if (await file.exists()) {
-      final text = await file.readAsString(); // Lee el archivo
-      generatedQRs = text.split('\n'); // Convierte el texto de nuevo a lista
+      final text = await file.readAsString();
+      generatedQRs = text.split('\n');
+    }
+  }
+
+  static Future<void> clearAllQRs() async {
+    generatedQRs.clear();
+    final directory = await getApplicationDocumentsDirectory();
+    final file = File('${directory.path}/generated_qrs.txt');
+    if (await file.exists()) {
+      await file.delete();
     }
   }
 
@@ -40,19 +44,32 @@ class _MyQRsPageState extends State<MyQRsPage> {
   @override
   void initState() {
     super.initState();
-    MyQRsPage.loadQRsFromFile(); // Cargar los QR guardados al iniciar
+    MyQRsPage.loadQRsFromFile().then((_) {
+      setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mis QR\'s')),
+      appBar: AppBar(
+        title: Text('Mis QR\'s'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              MyQRsPage.clearAllQRs().then((_) {
+                setState(() {});
+              });
+            },
+          ),
+        ],
+      ),
       body: ListView.builder(
         itemCount: MyQRsPage.generatedQRs.length,
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              // Acción al tocar un QR
               _showQR(MyQRsPage.generatedQRs[index]);
             },
             child: Container(
@@ -74,13 +91,32 @@ class _MyQRsPageState extends State<MyQRsPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('QR correspondiente'),
-        content: Container(
-          width: 200,
-          height: 200,
-          child: QrImageView(
-            data: qrText,
-            size: 200,
-          ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 300,
+              height: 300,
+              child: QrImageView(
+                data: qrText,
+                size: 300,
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  MyQRsPage.generatedQRs.remove(qrText);
+                  MyQRsPage.saveQRsToFile();
+                });
+                Navigator.of(context).pop();
+              },
+              child: Text('Eliminar este QR'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
