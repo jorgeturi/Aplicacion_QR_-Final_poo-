@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart'; // Importamos mobile_scanner
 import 'package:url_launcher/url_launcher.dart'; // Importar url_launcher
+import 'package:lottie/lottie.dart'; // Importar el paquete Lottie
 import 'generate_qr_page.dart'; // Importamos la página de generación
 import 'my_qrs_page.dart'; // Importamos la página para mostrar los QR guardados
 
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: Text("Ejemplo de Botones")),
+        appBar: AppBar(title: Text("")),
         body: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -32,7 +33,11 @@ class MyApp extends StatelessWidget {
               },
               backgroundColor: const Color.fromARGB(255, 0, 0, 0),
               foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-              child: Icon(Icons.camera_alt), // Ícono de cámara
+              child: 
+              Icon(
+                Icons.qr_code,
+                size: 40.0, // Ajusta el tamaño del icono
+              ) // Ícono de cámara
             );
           },
         ),
@@ -45,26 +50,44 @@ class MyApp extends StatelessWidget {
 class Botones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Stack(
+      alignment: Alignment.center,
       children: <Widget>[
-        Boton(
-          texto: 'Generar QR',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => GenerateQRPage()),
-            );
-          },
+        // Animación Lottie
+        Positioned(
+          top: 0, // Ajusta la posición vertical
+          child: Lottie.asset(
+            'imagenes/main/qr_animacion.json',
+            width: 200, // Ajusta el tamaño
+            height: 200, // Ajusta el tamaño
+            repeat: true, // Hacer que la animación se repita
+            reverse: true, // Hacer que la animación se revierta
+            animate: true,
+          ),
         ),
-        Boton(
-          texto: 'Mis QR',
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MyQRsPage()),
-            );
-          },
+        // Botones
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Boton(
+              texto: 'Generar QR',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => GenerateQRPage()),
+                );
+              },
+            ),
+            Boton(
+              texto: 'Mis QR',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyQRsPage()),
+                );
+              },
+            ),
+          ],
         ),
       ],
     );
@@ -147,70 +170,68 @@ class _QrScannerPageState extends State<QrScannerPage> {
   }
 
   void _handleScanResult(String scannedData) async {
-  // Divide la URL y la información (antes del "|")
-  List<String> parts = scannedData.split('|');
-  String url = parts[0];
-  String information = parts.length > 1 ? parts[1] : '';
+    // Divide la URL y la información (antes del "|")
+    List<String> parts = scannedData.split('|');
+    String url = parts[0];
+    String information = parts.length > 1 ? parts[1] : '';
 
-  // Verificamos si tiene el "|" y si el QR es dinámico
-  if (parts.length > 1) {
-    print('QR dinámico: $scannedData');
-    
-    // Verificamos si estamos dentro del timestamp definido (suponiendo que el timestamp está en milisegundos)
-    int timestamp = int.tryParse(information) ?? 0;
-    bool isValidTimestamp = timestamp > DateTime.now().millisecondsSinceEpoch;
-    print('Timestamp: $timestamp, válido: $isValidTimestamp');
-    
-    if (isValidTimestamp) {
-      print('QR dentro del tiempo válido');
+    // Verificamos si tiene el "|" y si el QR es dinámico
+    if (parts.length > 1) {
+      print('QR dinámico: $scannedData');
+      
+      // Verificamos si estamos dentro del timestamp definido (suponiendo que el timestamp está en milisegundos)
+      int timestamp = int.tryParse(information) ?? 0;
+      bool isValidTimestamp = timestamp > DateTime.now().millisecondsSinceEpoch;
+      print('Timestamp: $timestamp, válido: $isValidTimestamp');
+      
+      if (isValidTimestamp) {
+        print('QR dentro del tiempo válido');
+      } else {
+        print('QR fuera del tiempo válido');
+      }
     } else {
-      print('QR fuera del tiempo válido');
+      print('QR estático: $scannedData');
     }
-  } else {
-    print('QR estático: $scannedData');
-  }
 
-  bool isValid = true;
-  // Validamos la información
-  if (information != '') {
-    isValid = _validateInformation(information);
-  }
-
-  if (isValid) {
-    // Si la información es válida, intentamos lanzar la URL
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = 'https://$url'; // Agregar prefijo si falta
+    bool isValid = true;
+    // Validamos la información
+    if (information != '') {
+      isValid = _validateInformation(information);
     }
-    Uri uri = Uri.parse(url);
-    if (true) {
-      print("URL válida, abriendo...");
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (isValid) {
+      // Si la información es válida, intentamos lanzar la URL
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://$url'; // Agregar prefijo si falta
+      }
+      Uri uri = Uri.parse(url);
+      if (true) {
+        print("URL válida, abriendo...");
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showError("No se puede abrir la URL");
+      }
     } else {
-      _showError("No se puede abrir la URL");
+      _showError("QR inválido");
     }
-  } else {
-    _showError("QR inválido");
   }
-}
 
- bool _validateInformation(String info) {
-  // Lógica de validación de la información (por ejemplo, comprobar si el timestamp es válido)
-  
-  // Intentamos parsear la fecha ISO 8601 (ejemplo: "2025-01-03T15:08:03.369")
-  DateTime? parsedDate = DateTime.tryParse(info);
-  
-  if (parsedDate == null) {
-    print('Error: La información no es una fecha válida');
-    return false;
+  bool _validateInformation(String info) {
+    // Lógica de validación de la información (por ejemplo, comprobar si el timestamp es válido)
+    
+    // Intentamos parsear la fecha ISO 8601 (ejemplo: "2025-01-03T15:08:03.369")
+    DateTime? parsedDate = DateTime.tryParse(info);
+    
+    if (parsedDate == null) {
+      print('Error: La información no es una fecha válida');
+      return false;
+    }
+    
+    int timestamp = parsedDate.millisecondsSinceEpoch; // Convertimos la fecha a milisegundos
+    print('Timestamp: $timestamp, válido: ${timestamp > DateTime.now().millisecondsSinceEpoch}');
+
+    return timestamp > DateTime.now().millisecondsSinceEpoch; // Verificamos si el timestamp es mayor que el actual
   }
-  
-  int timestamp = parsedDate.millisecondsSinceEpoch; // Convertimos la fecha a milisegundos
-  print('Timestamp: $timestamp, válido: ${timestamp > DateTime.now().millisecondsSinceEpoch}');
-
-  return timestamp > DateTime.now().millisecondsSinceEpoch; // Verificamos si el timestamp es mayor que el actual
-}
-
-
 
   void _showError(String message) {
     showDialog(
