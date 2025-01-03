@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'my_qrs_page.dart'; // Importamos MyQRsPage para mostrar los QR guardados
-import 'dart:async';
+
 
 class GenerateQRPage extends StatefulWidget {
   @override

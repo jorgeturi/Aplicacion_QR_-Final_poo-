@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:mobile_scanner/mobile_scanner.dart'; // Importamos mobile_scanner
+import 'package:url_launcher/url_launcher.dart'; // Importar url_launcher
 import 'generate_qr_page.dart'; // Importamos la página de generación
 import 'my_qrs_page.dart'; // Importamos la página para mostrar los QR guardados
 
@@ -12,47 +12,42 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'QR Code Example',
-      debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: Text('QR Principal'),
-         actions: const [
-            MenuDesplegable(), // Agregamos el menú desplegable aquí
-          ],),
-        body: Center(child: QrCodeGenerator()),
+        appBar: AppBar(title: Text("Ejemplo de Botones")),
+        body: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Botones(),
+          ],
+        ),
+        floatingActionButton: Builder(
+          builder: (context) {
+            return FloatingActionButton(
+              onPressed: () {
+                // Acción para abrir la cámara
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => QrScannerPage()),
+                );
+              },
+              backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+              foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+              child: Icon(Icons.camera_alt), // Ícono de cámara
+            );
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, // Centrado abajo
       ),
     );
   }
 }
 
-class QrCodeGenerator extends StatefulWidget {
-  @override
-  _QrCodeGeneratorState createState() => _QrCodeGeneratorState();
-}
-
-class _QrCodeGeneratorState extends State<QrCodeGenerator> {
-  String data = "https://google.com";
-  double size = 200.0;  // Tamaño personalizable del QR
-
+class Botones extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        QrImageView(
-          data: data,
-          size: size,
-          version: 6,
-          errorCorrectionLevel: QrErrorCorrectLevel.L,
-        ),
-        Boton(
-          texto: 'icono escanear qr',
-          onPressed: () {
-            setState(() {
-              size = size == 100.0 ? 200.0 : 100.0; // Cambia el tamaño entre 100 y 200
-            });
-          },
-        ),
         Boton(
           texto: 'Generar QR',
           onPressed: () {
@@ -79,30 +74,30 @@ class _QrCodeGeneratorState extends State<QrCodeGenerator> {
 class Boton extends StatelessWidget {
   final String texto;
   final VoidCallback onPressed;
-  final EdgeInsetsGeometry margin; // Agregar parámetro para el margen
+  final EdgeInsetsGeometry margin;
 
   const Boton({
     Key? key,
     required this.texto,
     required this.onPressed,
-    this.margin = const EdgeInsets.all(4), // Valor por defecto para el margen
+    this.margin = const EdgeInsets.all(4),
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: margin, // Usamos el margen aquí
+      margin: margin,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all(Colors.blue), // Color de fondo cuando el botón está normal
-          foregroundColor: MaterialStateProperty.all(Colors.white), // Color del texto
-          side: MaterialStateProperty.all(BorderSide(color: Colors.black, width: 2)), // Borde negro
+          backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 89, 253)),
+          foregroundColor: MaterialStateProperty.all(Colors.white),
+          side: MaterialStateProperty.all(BorderSide(color: Colors.black, width: 1)),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero, // Hace que el botón sea cuadrado
+            borderRadius: BorderRadius.circular(12),
           )),
-          padding: MaterialStateProperty.all(EdgeInsets.all(16)), // Padding para hacer el botón más grande
-          overlayColor: MaterialStateProperty.all(Colors.grey), // Color cuando se presiona
+          padding: MaterialStateProperty.all(EdgeInsets.all(16)),
+          overlayColor: MaterialStateProperty.all(Colors.grey),
         ),
         child: Text(texto),
       ),
@@ -110,45 +105,126 @@ class Boton extends StatelessWidget {
   }
 }
 
+class QrScannerPage extends StatefulWidget {
+  @override
+  _QrScannerPageState createState() => _QrScannerPageState();
+}
 
-// Asegúrate de que esta clase solo esté declarada una vez
-class MenuDesplegable extends StatelessWidget {
-  const MenuDesplegable({Key? key}) : super(key: key);
+class _QrScannerPageState extends State<QrScannerPage> {
+  String? result; // Para almacenar el resultado del escaneo
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      onSelected: (String value) {
-        if (value == 'Opción 1') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('aaaaaaaaaaaaaaaaaaaaaaaaaaa')),
-          );
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Seleccionaste: $value')),
-        );
-      },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: 'Opción 1',
-          child: Text('Opción 1'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'Opción 2',
-          child: Row(
-            children: [
-              Icon(Icons.dark_mode, color: Colors.black),
-              const SizedBox(width: 8),
-              const Text('Opción 2 (Tema oscuro)'),
-            ],
+    return Scaffold(
+      appBar: AppBar(title: Text('Escanea tu código QR')),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 5,
+            child: MobileScanner(
+              onDetect: (BarcodeCapture barcodeCapture) {
+                final barcode = barcodeCapture.barcodes.first; // Acceder al primer código detectado
+                if (barcode.rawValue != null) {
+                  setState(() {
+                    result = barcode.rawValue; // Guardamos el resultado del escaneo
+                  });
+                  _handleScanResult(result!);
+                }
+              },
+            ),
           ),
-        ),
-        const PopupMenuItem<String>(
-          value: 'Opción 3',
-          child: Text('Opción 3'),
-        ),
-      ],
-      icon: const Icon(Icons.menu),
+          Expanded(
+            flex: 1,
+            child: Center(
+              child: (result != null)
+                  ? Text('Código detectado: $result') // Mostramos el código escaneado
+                  : Text('Apunta al código QR para escanear'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleScanResult(String scannedData) async {
+  // Divide la URL y la información (antes del "|")
+  List<String> parts = scannedData.split('|');
+  String url = parts[0];
+  String information = parts.length > 1 ? parts[1] : '';
+
+  // Verificamos si tiene el "|" y si el QR es dinámico
+  if (parts.length > 1) {
+    print('QR dinámico: $scannedData');
+    
+    // Verificamos si estamos dentro del timestamp definido (suponiendo que el timestamp está en milisegundos)
+    int timestamp = int.tryParse(information) ?? 0;
+    bool isValidTimestamp = timestamp > DateTime.now().millisecondsSinceEpoch;
+    print('Timestamp: $timestamp, válido: $isValidTimestamp');
+    
+    if (isValidTimestamp) {
+      print('QR dentro del tiempo válido');
+    } else {
+      print('QR fuera del tiempo válido');
+    }
+  } else {
+    print('QR estático: $scannedData');
+  }
+
+  bool isValid = true;
+  // Validamos la información
+  if (information != '') {
+    isValid = _validateInformation(information);
+  }
+
+  if (isValid) {
+    // Si la información es válida, intentamos lanzar la URL
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://$url'; // Agregar prefijo si falta
+    }
+    Uri uri = Uri.parse(url);
+    if (true) {
+      print("URL válida, abriendo...");
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      _showError("No se puede abrir la URL");
+    }
+  } else {
+    _showError("QR inválido");
+  }
+}
+
+ bool _validateInformation(String info) {
+  // Lógica de validación de la información (por ejemplo, comprobar si el timestamp es válido)
+  
+  // Intentamos parsear la fecha ISO 8601 (ejemplo: "2025-01-03T15:08:03.369")
+  DateTime? parsedDate = DateTime.tryParse(info);
+  
+  if (parsedDate == null) {
+    print('Error: La información no es una fecha válida');
+    return false;
+  }
+  
+  int timestamp = parsedDate.millisecondsSinceEpoch; // Convertimos la fecha a milisegundos
+  print('Timestamp: $timestamp, válido: ${timestamp > DateTime.now().millisecondsSinceEpoch}');
+
+  return timestamp > DateTime.now().millisecondsSinceEpoch; // Verificamos si el timestamp es mayor que el actual
+}
+
+
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
     );
   }
 }
