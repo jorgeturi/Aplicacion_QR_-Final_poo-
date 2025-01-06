@@ -19,6 +19,13 @@ class AppButtonStyles {
     ),
     padding: MaterialStateProperty.all(EdgeInsets.all(16)),
     overlayColor: MaterialStateProperty.all(Colors.grey),
+     textStyle: MaterialStateProperty.all(
+      TextStyle(
+        fontFamily: 'Poppins', // Asegúrate de que la fuente Poppins esté agregada en pubspec.yaml
+        fontWeight: FontWeight.bold,
+        fontSize: 16, // Puedes ajustar el tamaño según tus necesidades
+      ),
+    ),
   );
 }
 
