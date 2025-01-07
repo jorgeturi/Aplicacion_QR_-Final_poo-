@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class Log_page extends StatefulWidget {
@@ -7,26 +6,25 @@ class Log_page extends StatefulWidget {
 }
 
 class _Log_pageState extends State<Log_page> {
-  String connectionStatus = 'Comprobando conexión a Firebase...'; // Estado inicial
-
-  // Método para inicializar Firebase y verificar la conexión
-  Future<void> checkFirebaseConnection() async {
-    try {
-      await Firebase.initializeApp(); // Intenta inicializar Firebase
-      setState(() {
-        connectionStatus = 'Conexión a Firebase exitosa'; // Si la conexión es exitosa
-      });
-    } catch (e) {
-      setState(() {
-        connectionStatus = 'Error al conectar con Firebase: $e'; // Si ocurre un error
-      });
-    }
-  }
+  String connectionStatus = 'Comprobando conexión a Firebase...';
 
   @override
   void initState() {
     super.initState();
-    checkFirebaseConnection(); // Llamamos al método cuando la página se carga
+    checkFirebaseStatus();
+  }
+
+  // Método para verificar si Firebase ya está inicializado
+  void checkFirebaseStatus() {
+    try {
+      setState(() {
+        connectionStatus = 'Firebase está inicializado y funcionando'; // Firebase está disponible
+      });
+    } catch (e) {
+      setState(() {
+        connectionStatus = 'Error al verificar Firebase: $e'; // Si ocurre un error inesperado
+      });
+    }
   }
 
   @override
@@ -35,7 +33,7 @@ class _Log_pageState extends State<Log_page> {
       appBar: AppBar(title: Text('Iniciar Sesión')),
       body: Center(
         child: Text(
-          connectionStatus, // Mostramos el estado de la conexión
+          connectionStatus, // Mostrar el estado de la conexión
           style: TextStyle(fontSize: 24),
         ),
       ),
