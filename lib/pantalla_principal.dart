@@ -117,7 +117,7 @@ class IconButtonWithText extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             texto,
-            style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 255, 211, 53), fontFamily: 'Poppins',fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 34, 25, 163), fontFamily: 'Poppins',fontWeight: FontWeight.bold),
           
           ),
         ],

@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "929827470228",
+    "project_id": "finalpoo-turinajorge",
+    "storage_bucket": "finalpoo-turinajorge.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929827470228:android:912f08e645b519b7aa2d81",
+        "android_client_info": {
+          "package_name": "com.example.final_poo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929827470228-9462qkso05t3ppkb5rngvm52854904fq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.final_poo",
+            "certificate_hash": "ff91f410e329f88c22a1d0376c6c796c5c9e76ff"
+          }
+        },
+        {
+          "client_id": "929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNsta-aC_ENhyYbvkQ56bxmATq0LGAqTo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "929827470228-9e346jden5p52n8ub9kggd8sjcqjft6c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.finalPooTurina"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929827470228:android:1db1e5e564b55242aa2d81",
+        "android_client_info": {
+          "package_name": "com.example.finalpoo_turina"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCNsta-aC_ENhyYbvkQ56bxmATq0LGAqTo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "929827470228-9e346jden5p52n8ub9kggd8sjcqjft6c.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.finalPooTurina"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
