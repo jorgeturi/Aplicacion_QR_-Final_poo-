@@ -8,6 +8,8 @@ class GenerateQRPage extends StatefulWidget {
   _GenerateQRPageState createState() => _GenerateQRPageState();
 }
 
+
+
 class _GenerateQRPageState extends State<GenerateQRPage> {
   final TextEditingController _controller = TextEditingController();
   bool isDynamic = false; // Si es un QR dinámico
@@ -15,15 +17,16 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
   DateTime? expirationDate; // Fecha y hora de expiración
 
   // Guardar QR generado
-  void _saveQR(String qrText) {
-    MyQRsPage.addGeneratedQR(qrText); // Llamamos al método para agregar el QR a la lista global
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MyQRsPage(), // Llamamos la página de listado
-      ),
-    );
-  }
+void _saveQR(String qrText) {
+  MyQRsPage.addGeneratedQR(qrText); // Llamamos al método para agregar el QR a la lista global
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => MyQRsPage(),
+    ),
+  );
+}
+
 
 String _generateDynamicQR() {
   if (isDynamic && expirationTime != null) {

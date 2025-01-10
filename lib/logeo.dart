@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'auth_service.dart'; // Importamos el AuthService
 
 class Log_page extends StatefulWidget {
   @override
@@ -10,19 +10,19 @@ class Log_page extends StatefulWidget {
 class _Log_pageState extends State<Log_page> {
   String connectionStatus = 'Comprobando conexión a Firebase...';
   String authStatus = 'No autenticado';
-  GoogleSignIn _googleSignIn = GoogleSignIn();
-  FirebaseAuth _auth = FirebaseAuth.instance;
+  final AuthService _authService = AuthService(); // Instanciamos el AuthService
 
   @override
   void initState() {
     super.initState();
-    checkFirebaseStatus();
+    _checkFirebaseStatus();
     _checkIfUserIsLoggedIn();
   }
 
-  // Método para verificar si Firebase ya está inicializado
-  void checkFirebaseStatus() {
+  // Verificar el estado de Firebase
+  void _checkFirebaseStatus() async {
     try {
+      await _authService.initializeFirebase();
       setState(() {
         connectionStatus = 'Firebase está inicializado y funcionando';
       });
@@ -35,8 +35,7 @@ class _Log_pageState extends State<Log_page> {
 
   // Verificar si el usuario ya está autenticado
   void _checkIfUserIsLoggedIn() async {
-    User? user = _auth.currentUser;
-
+    User? user = await _authService.checkIfUserIsLoggedIn();
     if (user != null) {
       setState(() {
         authStatus = 'Autenticado como: ${user.displayName}';
@@ -50,41 +49,21 @@ class _Log_pageState extends State<Log_page> {
 
   // Método para autenticar con Google
   Future<void> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      if (googleUser == null) {
-        setState(() {
-          authStatus = 'Inicio de sesión cancelado por el usuario';
-        });
-        return;
-      }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      await _auth.signInWithCredential(credential);
-
+    User? user = await _authService.signInWithGoogle();
+    if (user != null) {
       setState(() {
-        authStatus =
-            'Autenticado como: ${_auth.currentUser?.displayName}';
+        authStatus = 'Autenticado como: ${user.displayName}';
       });
-    } catch (e) {
+    } else {
       setState(() {
-        authStatus = 'Error al iniciar sesión: $e';
+        authStatus = 'Inicio de sesión cancelado por el usuario';
       });
     }
   }
 
   // Método para cerrar sesión
   Future<void> signOut() async {
-    await _auth.signOut();
-    await _googleSignIn.signOut();
-
+    await _authService.signOut();
     setState(() {
       authStatus = 'No autenticado';
     });
@@ -107,14 +86,12 @@ class _Log_pageState extends State<Log_page> {
             style: TextStyle(fontSize: 18, color: Colors.blueGrey),
           ),
           SizedBox(height: 20),
-          // Mostrar botón de iniciar sesión solo si no hay un usuario autenticado
           if (authStatus == 'No autenticado')
             ElevatedButton(
               onPressed: signInWithGoogle,
               child: Text('Iniciar Sesión con Google'),
             ),
           SizedBox(height: 20),
-          // Mostrar botón de cerrar sesión solo si hay un usuario autenticado
           if (authStatus != 'No autenticado')
             ElevatedButton(
               onPressed: signOut,
