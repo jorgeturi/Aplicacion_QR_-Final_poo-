@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:finalpoo_turina/qr_storage.dart';
+import 'package:flutter/foundation.dart';  // para el manejo de la lista
+
 
 class MyQRsPage extends StatefulWidget {
   static List<String> generatedQRs = [];
 
   // Método para agregar QR a la lista de QRs generados
   static void addGeneratedQR(String qrText) {
-    // Añadir el nuevo QR solo si no está ya en la lista
     if (!generatedQRs.contains(qrText)) {
       generatedQRs.add(qrText);
       QRStorage.saveQRsToFile(generatedQRs); // Guarda el nuevo QR en el archivo
@@ -16,25 +17,29 @@ class MyQRsPage extends StatefulWidget {
   }
 
   // Método asíncrono para cargar todos los QRs desde Firestore y archivos
-  static Future<void> loadAllQRs() async {
-    if (generatedQRs.isEmpty) { // Solo cargamos si la lista está vacía
-      final fileQRs = <String>[];
-      await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo
-      final firestoreQRs = await QRStorage.loadQRsFromFirestore(); // Cargar QRs desde Firestore
-      // Unir ambas listas de forma correcta sin duplicar elementos
-      generatedQRs = [...fileQRs, ...firestoreQRs]..toSet().toList();
-    }
+static Future<void> loadAllQRs() async {
+  print("Cargando todos los QRs...");  // Mensaje de depuración
+  
+  final fileQRs = <String>[];
+  await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo
+  final firestoreQRs = await QRStorage.loadQRsFromFirestore(); // Cargar QRs desde Firestore
+  final allQRs = [...fileQRs, ...firestoreQRs]..removeWhere((qr) => qr == null);
+
+  // Comparar los datos nuevos con los existentes para evitar duplicados
+  final newQRs = allQRs.toSet().toList();
+  
+  // Si los datos nuevos son distintos a los actuales, actualizar la lista
+  if (!listEquals(newQRs, generatedQRs)) {
+    generatedQRs = newQRs;
+    print("QRs cargados y actualizados: ${generatedQRs.length}");
+  } else {
+    print("Los QRs ya están actualizados.");
   }
+}
 
   @override
   _MyQRsPageState createState() => _MyQRsPageState();
 }
-
-
-
-
-
-
 
 class _MyQRsPageState extends State<MyQRsPage> {
   @override
@@ -53,23 +58,46 @@ class _MyQRsPageState extends State<MyQRsPage> {
         actions: [
           IconButton(
             icon: Icon(Icons.delete),
-            onPressed: () {
+            onPressed: () async {
               setState(() {
-                MyQRsPage.generatedQRs.clear();
-                QRStorage.saveQRsToFile(MyQRsPage.generatedQRs);
+                MyQRsPage.generatedQRs.clear(); // Limpia la lista en memoria
               });
+
+              // Borra el archivo local directamente
+              await QRStorage.deleteLocalFile();
+
+              // Opcional: Recargar desde Firestore para sincronizar
+              await MyQRsPage.loadAllQRs();
+              setState(() {}); // Actualiza la UI con los datos recargados
             },
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: MyQRsPage.generatedQRs.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(MyQRsPage.generatedQRs[index]),
-            onTap: () => _showQR(MyQRsPage.generatedQRs[index]),
-          );
+      body: MyQRsPage.generatedQRs.isEmpty
+          ? Center(child: Text("No hay QRs generados."))
+          : ListView.builder(
+              itemCount: MyQRsPage.generatedQRs.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(MyQRsPage.generatedQRs[index]),
+                  onTap: () => _showQR(MyQRsPage.generatedQRs[index]),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // Agregar debug print para verificar si se presiona el botón
+          print("Botón de actualización presionado");
+          
+          // Llamar al método para cargar todos los QRs nuevamente
+          await MyQRsPage.loadAllQRs();
+          
+          // Asegurarse de que setState esté llamándose para actualizar la UI
+          print("Después de cargar los QRs...");
+          setState(() {});
         },
+        child: Icon(Icons.refresh), // Icono de actualización
+        tooltip: 'Actualizar QR\'s',
       ),
     );
   }
@@ -82,10 +110,10 @@ class _MyQRsPageState extends State<MyQRsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container( // meto en un contenedor de este tamaño para que web sepa como responder
-            width: 300, 
-            height: 300, 
-            child: QrImageView(data: qrText), // Ahora tendrá un tamaño válido
+            Container(
+              width: 300,
+              height: 300,
+              child: QrImageView(data: qrText),
             ),
             ElevatedButton(
               onPressed: () async {

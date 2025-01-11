@@ -116,4 +116,21 @@ class QRStorage {
       print('Error al eliminar QR de Firestore: $e');
     }
   }
+
+
+
+static Future<File> getLocalQRFile() async {
+  final directory = await getApplicationDocumentsDirectory();
+  return File('${directory.path}/generated_qrs.txt');
 }
+
+
+  static Future<void> deleteLocalFile() async {
+final file = await getLocalQRFile();
+  if (await file.exists()) {
+    await file.delete(); // Borra el archivo si existe
+  }
+}
+
+}
+

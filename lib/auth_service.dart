@@ -33,7 +33,8 @@ class AuthService {
           googleUser = await _googleSignIn.signIn();
         }
       } else {
-        googleUser = await _googleSignIn.signIn();  // En móviles siempre mostramos la ventana emergente
+        // En plataformas no-web (como Windows), siempre mostramos la ventana emergente
+        googleUser = await _googleSignIn.signIn();  // En móviles y Windows siempre mostramos la ventana emergente
       }
 
       if (googleUser == null) {
