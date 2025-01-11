@@ -5,6 +5,7 @@ import 'generate_qr_page.dart';
 import 'my_qrs_page.dart';
 import 'boton_flotante.dart';
 import 'logeo.dart';
+import 'test.dart';
 
 class pantalla_principal extends StatelessWidget {
   @override
@@ -73,6 +74,15 @@ class opciones extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyQRsPage()),
+                );
+              },
+            ),
+            boton(
+              texto: 'test',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MytestPage()),
                 );
               },
             ),

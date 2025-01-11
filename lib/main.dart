@@ -3,7 +3,7 @@ import 'pantalla_principal.dart';
 import 'firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   // Asegúrate de que WidgetsFlutterBinding esté inicializado antes de ejecutar cualquier código que dependa de Flutter.
@@ -14,7 +14,15 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Registra el Client ID para Google Sign-In
+  GoogleSignIn googleSignIn = GoogleSignIn(
+    clientId: '929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com',
+  );
+
+  // Opcional: Test Firestore
   await _testFirestore();
+
+  // Ejecuta la app
   runApp(MyApp());
 }
 
@@ -26,7 +34,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
 
 Future<void> _testFirestore() async {
   try {
