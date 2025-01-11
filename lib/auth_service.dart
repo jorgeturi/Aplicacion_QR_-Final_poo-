@@ -27,13 +27,17 @@ class AuthService {
 
       // En la web intentamos el inicio de sesión silencioso
       if (kIsWeb) {
-        googleUser = await _googleSignIn.signInSilently();  // Evita la ventana emergente
+        googleUser = await _googleSignIn.signInSilently();  // Intentamos iniciar sesión sin mostrar ventana emergente
+        if (googleUser == null) {
+          // Si no hay sesión silenciosa, mostramos la ventana emergente
+          googleUser = await _googleSignIn.signIn();
+        }
       } else {
-        googleUser = await _googleSignIn.signIn();  // Usamos el inicio normal en móviles
+        googleUser = await _googleSignIn.signIn();  // En móviles siempre mostramos la ventana emergente
       }
 
       if (googleUser == null) {
-        return null; // Usuario cancela el inicio de sesión
+        return null; // El usuario cancela el inicio de sesión
       }
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;

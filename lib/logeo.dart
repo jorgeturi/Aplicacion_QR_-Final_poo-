@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'auth_service.dart'; // Importamos el AuthService
+import 'auth_service.dart'; 
 
 class Log_page extends StatefulWidget {
   @override

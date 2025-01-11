@@ -5,13 +5,13 @@ import 'generate_qr_page.dart';
 import 'my_qrs_page.dart';
 import 'boton_flotante.dart';
 import 'logeo.dart';
-import 'test.dart';
 
 class pantalla_principal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Inicio")),
+      appBar: AppBar(toolbarHeight: 50,
+        title: Text("Inicio")),
       body: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -32,7 +32,7 @@ class opciones extends StatelessWidget {
       alignment: Alignment.center,
       children: <Widget>[
         Positioned(
-          top: 20,
+          top: 0,
           child: Lottie.asset(
             'imagenes/main/qr_animacion.json',
             width: 200,
@@ -74,15 +74,6 @@ class opciones extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyQRsPage()),
-                );
-              },
-            ),
-            boton(
-              texto: 'test',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => MytestPage()),
                 );
               },
             ),

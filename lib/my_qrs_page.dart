@@ -82,7 +82,11 @@ class _MyQRsPageState extends State<MyQRsPage> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            QrImageView(data: qrText, size: 300),
+            Container( // meto en un contenedor de este tamaño para que web sepa como responder
+            width: 300, 
+            height: 300, 
+            child: QrImageView(data: qrText), // Ahora tendrá un tamaño válido
+            ),
             ElevatedButton(
               onPressed: () async {
                 MyQRsPage.generatedQRs.remove(qrText);
