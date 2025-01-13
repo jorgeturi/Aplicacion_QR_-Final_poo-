@@ -21,12 +21,19 @@ void handleScanResult(BuildContext context, String scannedData) async {
   }
 
   Uri uri = Uri.parse(url);
-  if (!await canLaunchUrl(uri)) {
-    showError(context, "No se puede abrir la URL");
-    return;
+  //if (!await canLaunchUrl(uri)) {
+  //  showError(context, "No se puede abrir la URL");
+  //  return;
+  //}
+
+  //await launchUrl(uri, mode: LaunchMode.externalApplication);
+  
+  try {
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  } catch (e) {
+    showError(context, "Error al abrir la URL: $e");
   }
 
-  await launchUrl(uri, mode: LaunchMode.externalApplication);
 }
 
 void showError(BuildContext context, String message) {
