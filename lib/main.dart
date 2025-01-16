@@ -19,8 +19,8 @@ void main() async {
     clientId: '929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com',
   );
 
-  // Opcional: Test Firestore
-  await _testFirestore();
+  // Test Firestore
+  //await _testFirestore();
 
   // Ejecuta la app
   runApp(MyApp());
