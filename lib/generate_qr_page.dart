@@ -45,16 +45,18 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             fechaCreacion: DateTime.now(),
             owner: ownerId,
             fechaExpiracion: expirationDate!,
+            id: "idvaciodinamico",
           )
         : QREstatico(
             url: qrText,
             alias: _controllerAlias.text,
             fechaCreacion: DateTime.now(),
             owner: ownerId,
+            id: "idvacioestatico",
           );
     
     // Agregar el QR generado a la lista de QR guardados
-    MyQRsPage.addGeneratedQR(newQR.toString());
+    MyQRsPage.addGeneratedQR(newQR);
     // Imprimir en consola
     print("QR Guardado: ${newQR.toString()}");
 

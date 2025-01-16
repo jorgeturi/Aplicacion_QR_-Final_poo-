@@ -2,26 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:finalpoo_turina/qr_storage.dart';
 import 'package:flutter/foundation.dart'; // Para el manejo de la lista
+import 'qr_clases.dart';
 
-class MyQRsPage extends StatefulWidget {
-  static List<String> generatedQRs = [];
+class MyQRsPage extends StatefulWidget{
+  static List<QREstatico> generatedQRs = [];  // Lista de objetos QR
 
-  // Método para agregar QR a la lista de QRs generados
-  static void addGeneratedQR(String qrText) {
-    if (!generatedQRs.contains(qrText)) {
-      generatedQRs.add(qrText);
-      QRStorage.saveQRsToFile(generatedQRs); // Guarda el nuevo QR en el archivo
-      QRStorage.addGeneratedQRToFirestore(qrText); // Guarda el nuevo QR en Firestore
-    }
+  // Método para agregar un QR a la lista de QRs generados
+  static Future<void> addGeneratedQR(QREstatico qr) async {
+  if (!generatedQRs.any((existingQR) => existingQR.id == qr.id)) {
+    await QRStorage.addGeneratedQRToFirestore(qr);  // Esperamos que Firestore termine
+    generatedQRs.add(qr);
+    QRStorage.saveQRsToFile(generatedQRs);  // Guardamos el nuevo QR en el archivo
   }
+}
 
   // Método asíncrono para cargar todos los QRs desde Firestore y archivos
   static Future<void> loadAllQRs() async {
     print("Cargando todos los QRs..."); // Mensaje de depuración
 
-    final fileQRs = <String>[];
-    await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo
+    final fileQRs = <QREstatico>[];  // Lista para almacenar los QRs desde el archivo
     final firestoreQRs = await QRStorage.loadQRsFromFirestore(); // Cargar QRs desde Firestore
+
+    await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo
+
     final allQRs = [...fileQRs, ...firestoreQRs]
         .where((qr) => qr != null)
         .toSet()
@@ -31,6 +34,9 @@ class MyQRsPage extends StatefulWidget {
     if (!listEquals(allQRs, generatedQRs)) {
       generatedQRs = allQRs;
       print("QRs cargados y actualizados: ${generatedQRs.length}");
+      for (var qr in firestoreQRs) {
+  print('ID del QR: ${qr.getId()}');
+}
     } else {
       print("Los QRs ya están actualizados.");
     }
@@ -77,15 +83,20 @@ Widget build(BuildContext context) {
         : ListView.builder(
             itemCount: MyQRsPage.generatedQRs.length,
             itemBuilder: (context, index) {
-              final qrText = MyQRsPage.generatedQRs[index];
-              final parts = qrText.split('|'); // Divide el texto por el separador '|'
+              // Aquí estamos trabajando con un objeto QREstatico
+              final qr = MyQRsPage.generatedQRs[index];
 
-              // Verifica si hay al menos dos partes para acceder al alias
-              final alias = (parts.length > 1) ? parts[1] : "Alias no disponible";
+              // Ahora obtenemos el id y el alias de cada objeto QREstatico
+              final id = qr.id;
+              final alias = qr.alias;
+
+              // Generamos la URL con el id
+              final qrUrl = "https://finalpoo-turinajorge.web.app/validador/?qr=$id";
 
               return ListTile(
-                title: Text(alias), // Muestra solo el alias
-                onTap: () => _showQR(qrText), // Pasa el texto completo del QR al mostrarlo
+                title: Text(alias), // Muestra el alias
+                subtitle: Text("ID: $id"), // Muestra el ID
+                onTap: () => _showQR(qrUrl), // Pasa la URL generada al mostrarlo
               );
             },
           ),
