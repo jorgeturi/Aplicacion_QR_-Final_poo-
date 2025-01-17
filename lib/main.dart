@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
-  // Asegúrate de que WidgetsFlutterBinding esté inicializado antes de ejecutar cualquier código que dependa de Flutter.
+  // Asegura la inicialización del entorno de Flutter
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializa Firebase antes de ejecutar la app

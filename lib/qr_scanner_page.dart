@@ -22,8 +22,7 @@ class _QrScannerPageState extends State<QrScannerPage> {
       final url = Uri.parse(scannedValue);
 
       // Comprobar si se puede abrir la URL
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      
+      await launchUrl(url, mode: LaunchMode.externalApplication);
     } catch (e) {
       print('Error al intentar abrir la URL: $e');
       _showErrorDialog(context, 'Error al procesar el QR');
@@ -73,7 +72,8 @@ class _QrScannerPageState extends State<QrScannerPage> {
                       result = scannedValue;
                       lastResult = scannedValue;
                     });
-                    handleScanResult(scannedValue); // Abrir la página directamente
+                    handleScanResult(
+                        scannedValue); // Abrir la página directamente
                   }
                 }
               },
