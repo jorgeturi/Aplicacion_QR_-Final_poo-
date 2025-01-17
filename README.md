@@ -2,7 +2,9 @@
 
 ## Aplicación Multiplataforma para Manejar QRs
 **Final de Programación Orientada a Objetos**  
-**Desarrollado por: Turina Jorge**
+**Alumno: Turina Jorge Agustín**
+
+[Ingresá a la web de presentación](https://tujo.com.ar/qrapp)
 
 Este proyecto es el resultado final de la asignatura *Programación Orientada a Objetos* (POO), donde se ha desarrollado una aplicación multiplataforma utilizando Flutter. La aplicación está diseñada para gestionar códigos QR, permitiendo generar y escanear tanto códigos QR estáticos como dinámicos. 
 
