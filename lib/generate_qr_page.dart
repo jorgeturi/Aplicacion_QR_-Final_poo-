@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'my_qrs_page.dart'; // Importamos MyQRsPage para mostrar los QR guardados
+import 'my_qrs_page.dart'; //para mostrar los QR guardados
 import 'qr_clases.dart';
 import 'auth_service.dart';
 
@@ -19,6 +19,10 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
   final TextEditingController _controllerAlias = TextEditingController();
 
   final AuthService _authService = AuthService();
+  bool allowSpecificUsers = false;
+
+  TextEditingController _controllerEmails = TextEditingController();
+
 
   @override
   void initState() {
@@ -56,6 +60,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
           );
     
     // Agregar el QR generado a la lista de QR guardados
+    if (newQR.url != ''){
     MyQRsPage.addGeneratedQR(newQR);
     // Imprimir en consola
     print("QR Guardado: ${newQR.toString()}");
@@ -66,9 +71,11 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
         builder: (context) => MyQRsPage(),
       ),
     );
+
+    }
   }
 
-  String _generateDynamicQR() {
+  String _generateQR() {
     print("el dueño es : ");
     print(ownerId);
     if (isDynamic && expirationTime != null) {
@@ -82,6 +89,8 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
       }
       return _controller.text;
     }
+
+
     return _controller.text; // Si no es dinámico, solo usamos el texto ingresado
   }
 
@@ -89,7 +98,8 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Generar QR')),
-      body: Padding(
+      body: SingleChildScrollView(  // para desplazamiento
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -98,7 +108,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Introduce el texto o URL para el QR',
+                hintText: 'Introduce URL para el QR',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -141,27 +151,54 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                   setState(() {
                     expirationTime = int.tryParse(value);
                   });
+
+                  // Limitar valor
+      if (expirationTime != null && expirationTime! > 26280000000) {
+        expirationTime = 26280000000; // Limita el valor
+        _controllertiempo.text = expirationTime.toString(); // Actualiza el campo
+        showError(context, "el limite son 50000 años");
+      }
+
                 },
               ),
             SizedBox(height: 20),
 
-            // Botón para generar el QR
-            ElevatedButton(
-              onPressed: () {
-                setState(() {}); // Actualiza la interfaz después de cualquier cambio
-              },
-              child: Text('Generar QR'),
+            
+
+
+
+           Row(
+              children: [
+                Text("Permitir acceso a usuarios específicos: "),
+                Checkbox(
+                  value: allowSpecificUsers,
+                  onChanged: (value) {
+                    setState(() {
+                      allowSpecificUsers = value!;
+                    });
+                  },
+                ),
+              ],
             ),
+
+            // Campo para ingresar correos electrónicos, visible solo si se habilita la opción anterior
+            if (allowSpecificUsers)
+  TextField(
+    controller: _controllerEmails,
+    maxLines: 3, // Configura el campo para que tenga hasta 3 líneas
+    keyboardType: TextInputType.multiline, // Habilita la entrada de varias líneas
+    decoration: InputDecoration(
+      hintText: 'Introduce correos electrónicos separados por coma',
+      border: OutlineInputBorder(),
+    ),
+  ),
             SizedBox(height: 20),
 
-            // Muestra el QR generado
-            _controller.text.isEmpty
-                ? Container()
-                : QrImageView(
-                    data: _generateDynamicQR(),
-                    size: 200,
-                  ),
-            SizedBox(height: 20),
+
+
+
+
+
 
             // Botón para guardar el QR
             ElevatedButton(
@@ -171,13 +208,14 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                     _controllerAlias.text.isEmpty) {
                   showError(context, 'Por favor, complete todos los campos.');
                 } else {
-                  _saveQR(_generateDynamicQR()); // Guardamos el QR
+                  _saveQR(_generateQR()); // Guardamos el QR
                 }
               },
               child: Text('Guardar QR'),
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -187,7 +225,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text("Error"),
+          title: Text("Atención"),
           content: Text(message),
           actions: [
             TextButton(

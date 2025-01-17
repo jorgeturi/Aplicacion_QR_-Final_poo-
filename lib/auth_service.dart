@@ -6,7 +6,11 @@ import 'firebase_options.dart' show DefaultFirebaseOptions;
 import 'package:flutter/foundation.dart';
 
 class AuthService {
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  // Registra el Client ID para Google Sign-In
+  GoogleSignIn googleSignIn = GoogleSignIn(
+    clientId: '929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com',
+  );
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -29,9 +33,9 @@ class AuthService {
 
       // Iniciar sesión de forma silenciosa o con ventana emergente según la plataforma
       if (kIsWeb) {
-        googleUser = await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
+        googleUser = await googleSignIn.signInSilently() ?? await googleSignIn.signIn();
       } else {
-        googleUser = await _googleSignIn.signIn();
+        googleUser = await googleSignIn.signIn();
       }
 
       if (googleUser == null) {
@@ -64,6 +68,6 @@ class AuthService {
   // Cerrar sesión
   Future<void> signOut() async {
     await _auth.signOut();
-    await _googleSignIn.signOut();
+    await googleSignIn.signOut();
   }
 }

@@ -9,17 +9,17 @@ class AppColors {
 
 class AppButtonStyles {
   static final primary = ButtonStyle(
-    backgroundColor: MaterialStateProperty.all(AppColors.primary),
-    foregroundColor: MaterialStateProperty.all(AppColors.white),
-    side: MaterialStateProperty.all(BorderSide(color: Colors.black, width: 1)),
-    shape: MaterialStateProperty.all(
+    backgroundColor: WidgetStateProperty.all(AppColors.primary),
+    foregroundColor: WidgetStateProperty.all(AppColors.white),
+    //side: WidgetStateProperty.all(BorderSide(color: Colors.black, width: 1)),
+    shape: WidgetStateProperty.all(
       RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
     ),
-    padding: MaterialStateProperty.all(EdgeInsets.all(16)),
-    overlayColor: MaterialStateProperty.all(Colors.grey),
-     textStyle: MaterialStateProperty.all(
+    padding: WidgetStateProperty.all(EdgeInsets.all(16)),
+    overlayColor: WidgetStateProperty.all(const Color.fromARGB(255, 15, 97, 185)),
+     textStyle: WidgetStateProperty.all(
       TextStyle(
         fontFamily: 'Poppins', // Asegúrate de que la fuente Poppins esté agregada en pubspec.yaml
         fontWeight: FontWeight.bold,
@@ -59,4 +59,31 @@ class boton extends StatelessWidget {
       ),
     );
   }
+}
+
+
+
+ThemeData appTheme() {
+  return ThemeData(
+    primaryColor: AppColors.primary,
+    buttonTheme: ButtonThemeData(
+      buttonColor: AppColors.primary, // Color del botón
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.primary, // Color de fondo
+        foregroundColor: AppColors.white, //texto
+        padding: EdgeInsets.all(16), // Relleno interno del botón
+        shape: RoundedRectangleBorder( // Forma del botón
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 4, // Sombra del botón
+        textStyle: TextStyle( // Estilo del texto
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+        ),
+      ),
+    ),
+  );
 }
