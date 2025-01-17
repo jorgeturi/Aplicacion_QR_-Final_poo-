@@ -7,7 +7,7 @@ import 'dart:convert';
 
 class QRStorage {
   // Función para agregar un QR generado a Firestore
- static Future<void> addGeneratedQRToFirestore(QREstatico qr) async {
+ static Future<void> addGeneratedQRToFirestore(QREstatico qr , String? users) async {
   try {
     final User? user = FirebaseAuth.instance.currentUser;
 
@@ -38,6 +38,14 @@ class QRStorage {
 
       // Asignar el ID generado al objeto QR local para que lo puedas usar
       qr.id = generatedId;  // Actualizar el objeto QR con el ID generado
+      final subCollectionRef = docRef.collection('informacion');
+      final infoData = {
+        'usuarios permitidos': users,
+      };
+
+      // Agregar documento a la subcolección
+      await subCollectionRef.add(infoData);
+      await subCollectionRef.doc("usuarios con acceso").set(infoData);
 
       print("lo guarde en firestore");
       print("ahora veo que qr tiene id");
@@ -52,6 +60,7 @@ class QRStorage {
     print('Error al agregar QR a Firestore: $e');
   }
 }
+
 
 
 

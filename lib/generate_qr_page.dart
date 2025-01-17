@@ -1,3 +1,4 @@
+import 'package:finalpoo_turina/qr_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'my_qrs_page.dart'; //para mostrar los QR guardados
@@ -40,6 +41,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
     });
   }
 
+
   // Guardar QR generado
   void _saveQR(String qrText) {
     final newQR = isDynamic
@@ -61,7 +63,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
     
     // Agregar el QR generado a la lista de QR guardados
     if (newQR.url != ''){
-    MyQRsPage.addGeneratedQR(newQR);
+    MyQRsPage.addGeneratedQR(newQR, _controllerEmails.text);
     // Imprimir en consola
     print("QR Guardado: ${newQR.toString()}");
 
@@ -205,7 +207,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
               onPressed: () {
                 if (_controller.text.isEmpty ||
                     (isDynamic && int.tryParse(_controllertiempo.text) == null) ||
-                    _controllerAlias.text.isEmpty) {
+                    _controllerAlias.text.isEmpty || allowSpecificUsers && _controllerEmails.text.isEmpty) {
                   showError(context, 'Por favor, complete todos los campos.');
                 } else {
                   _saveQR(_generateQR()); // Guardamos el QR

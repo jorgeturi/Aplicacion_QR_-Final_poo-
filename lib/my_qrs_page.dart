@@ -13,13 +13,14 @@ class MyQRsPage extends StatefulWidget{
   static List<QREstatico> generatedQRs = [];  // Lista de objetos QR
 
   // Método para agregar un QR a la lista de QRs generados
-  static Future<void> addGeneratedQR(QREstatico qr) async {
+  static Future<void> addGeneratedQR(QREstatico qr, String users) async {
   if (!generatedQRs.any((existingQR) => existingQR.id == qr.id)) {
-    await QRStorage.addGeneratedQRToFirestore(qr);  // Esperamos que Firestore termine
+    await QRStorage.addGeneratedQRToFirestore(qr, users);  // Esperamos que Firestore termine
     generatedQRs.add(qr);
     QRStorage.saveQRsToFile(generatedQRs);  // Guardamos el nuevo QR en el archivo
   }
 }
+  
 
   // Método asíncrono para cargar todos los QRs desde Firestore y archivos
  static Future<void> loadAllQRs() async {
