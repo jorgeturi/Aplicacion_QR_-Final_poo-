@@ -183,7 +183,8 @@ void _showQRInfo(QREstatico qrparticular) async {
   final url = qrparticular.url;
   final formateador = DateFormat('yyyy-MM-dd HH:mm:ss');
   final creacionFormateada = formateador.format(qrparticular.fechaCreacion);
-  final usuariosPermitidos = await QrStorageHandle.obtenerUsuariosPermitidos(qrparticular.getId());
+  String? usuariosPermitidos = await QrStorageHandle.obtenerUsuariosPermitidos(qrparticular.getId());
+  usuariosPermitidos ??= "todos"; // si es nulo asigna "todos", recomendado por compilador
 
   String? expiracionFormateada;
   // Comprueba si el QR es del tipo QRDinamico para acceder a la fecha de expiración
@@ -198,10 +199,31 @@ void _showQRInfo(QREstatico qrparticular) async {
     builder: (context) => AlertDialog(
       
       title: Text('Información de $alias', textAlign: TextAlign.center),
-      content: Column(
+      content: SingleChildScrollView( // Agrega scroll al contenido
+      child: Column(
+        
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Align(
+    alignment: Alignment.center, // Alinea el botón al centro horizontal
+    child: TextButton(
+      onPressed: () {
+        // Lógica para agregar información
+        _agregar_informacion(context);
+
+      },
+      child: Text('Agregar Información'),
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.white, // Cambia el color del texto
+        backgroundColor: AppColors.primary,
+        textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    ),
+  ),
+
+          SizedBox(height: 20),
+
           qrparticular is QRdinamico 
         ? Text('Tipo: Dinamico') 
         : Text('Tipo: Estatico'),
@@ -226,13 +248,14 @@ void _showQRInfo(QREstatico qrparticular) async {
           Text('Usuarios permitidos: $usuariosPermitidos'),
           
 
-          const SizedBox(height: 10),
+          const SizedBox(height: 500),
           Text(
             'Este código QR es usado para XYZ...',
             style: const TextStyle(color: Colors.grey),
           ),
         ],
       ),
+    ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -242,6 +265,72 @@ void _showQRInfo(QREstatico qrparticular) async {
     ),
   );
 }
+
+
+
+
+
+
+
+void _agregar_informacion(BuildContext context) {
+  final TextEditingController _controller = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Agregar Información', textAlign: TextAlign.center),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Ingrese la información:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: _controller,
+                maxLines: 3, // Permite múltiples líneas
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Escribe algo aquí...',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cerrar el diálogo
+            },
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final String inputText = _controller.text.trim();
+              if (inputText.isNotEmpty) {
+                // Aquí puedes manejar el texto ingresado
+                print("Información guardada: $inputText");
+              } else {
+                print("No se ingresó información");
+              }
+              Navigator.of(context).pop(); // Cerrar el diálogo
+            },
+            child: Text('Guardar'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
+
+
+
 
 
 
