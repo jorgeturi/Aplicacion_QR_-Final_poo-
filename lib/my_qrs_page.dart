@@ -9,6 +9,8 @@ import 'qr_clases.dart';
 import 'package:intl/intl.dart';
 
 
+
+
 class MyQRsPage extends StatefulWidget{
   static List<QREstatico> generatedQRs = [];  // Lista de objetos QR
 
@@ -176,11 +178,12 @@ void _showQR(QREstatico qrparticular) {
   );
 }
 
-void _showQRInfo(QREstatico qrparticular) {
+void _showQRInfo(QREstatico qrparticular) async {
   final alias = qrparticular.getAlias();
   final url = qrparticular.url;
   final formateador = DateFormat('yyyy-MM-dd HH:mm:ss');
   final creacionFormateada = formateador.format(qrparticular.fechaCreacion);
+  final usuariosPermitidos = await QrStorageHandle.obtenerUsuariosPermitidos(qrparticular.getId());
 
   String? expiracionFormateada;
   // Comprueba si el QR es del tipo QRDinamico para acceder a la fecha de expiración
@@ -193,17 +196,36 @@ void _showQRInfo(QREstatico qrparticular) {
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
+      
       title: Text('Información de $alias', textAlign: TextAlign.center),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Alias: $alias'),
-          Text('Contenido del QR: $url'),
+          qrparticular is QRdinamico 
+        ? Text('Tipo: Dinamico') 
+        : Text('Tipo: Estatico'),
+          SizedBox(height: 10),
+          Row(
+                children: [
+                  Text('Alias: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(alias),
+                ],
+              ),
+          Row(
+                children: [
+                  Text('Contenido del QR: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(url),
+                ],
+              ),
+          SizedBox(height: 10),
           Text('fecha creacion: $creacionFormateada'),
           if(qrparticular is QRdinamico)
             Text('fecha expiracion: $expiracionFormateada'),
+          SizedBox(height: 10),
+          Text('Usuarios permitidos: $usuariosPermitidos'),
           
+
           const SizedBox(height: 10),
           Text(
             'Este código QR es usado para XYZ...',

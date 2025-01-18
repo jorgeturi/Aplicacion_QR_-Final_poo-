@@ -44,7 +44,6 @@ class QRStorage {
       };
 
       // Agregar documento a la subcolección
-      await subCollectionRef.add(infoData);
       await subCollectionRef.doc("usuarios con acceso").set(infoData);
 
       print("lo guarde en firestore");
@@ -248,5 +247,63 @@ final file = await getLocalQRFile();
   }
 }
 
+
+
+
+
+static Future<String?> getUsuariosPermitidos(String qrId) async {
+  try {
+    // Obtener el usuario autenticado
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      final uid = user.uid; // UID del usuario autenticado
+      final firestore = FirebaseFirestore.instance;
+
+      // Ruta al documento en la subcolección 'informacion'
+      final docRef = firestore
+          .collection('users')
+          .doc(uid)
+          .collection('qrs')
+          .doc(qrId)
+          .collection('informacion')
+          .doc('usuarios con acceso');
+
+      // Obtener el documento
+      final docSnapshot = await docRef.get();
+
+      if (docSnapshot.exists) {
+        // Extraer el campo 'usuarios permitidos'
+        final data = docSnapshot.data();
+        if (data != null && data.containsKey('usuarios permitidos')) {
+          return data['usuarios permitidos'] as String;
+        } else {
+          print('El campo "usuarios permitidos" no existe en el documento.');
+          return null;
+        }
+      } else {
+        print('El documento no existe en Firestore.');
+        return null;
+      }
+    } else {
+      print('No hay usuario autenticado.');
+      return null;
+    }
+  } catch (e) {
+    print('Error al obtener "usuarios permitidos" de Firestore: $e');
+    return null;
+  }
 }
 
+}
+
+class QrStorageHandle
+{
+
+    static Future<String?> obtenerUsuariosPermitidos(String qrId) async {
+      String? resultado = await QRStorage.getUsuariosPermitidos(qrId);
+      print(resultado);
+      return resultado;
+    }
+
+}
