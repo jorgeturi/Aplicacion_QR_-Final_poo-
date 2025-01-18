@@ -171,7 +171,9 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
 
            Row(
               children: [
-                Text("Permitir acceso a usuarios específicos: "),
+                Expanded(
+                child : Text("Permitir acceso a usuarios específicos: "),
+                ),
                 Checkbox(
                   value: allowSpecificUsers,
                   onChanged: (value) {

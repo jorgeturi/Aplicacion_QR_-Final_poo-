@@ -24,7 +24,7 @@ class _Log_pageState extends State<Log_page> {
     try {
       await _authService.initializeFirebase();
       setState(() {
-        connectionStatus = 'Firebase está inicializado y funcionando';
+        connectionStatus = 'Conectado a la nube. Podés usar la app';
       });
     } catch (e) {
       setState(() {
@@ -69,29 +69,40 @@ class _Log_pageState extends State<Log_page> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Iniciar Sesión')),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: Text('Iniciar Sesión')),
+    body: Center( // Center se usa para centrar todo el contenido dentro del cuerpo
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // Centra todo el contenido verticalmente
+        crossAxisAlignment: CrossAxisAlignment.center, // Centra todo el contenido horizontalmente
         children: [
+          // Texto con el estado de la conexión
           Text(
             connectionStatus, // Mostrar el estado de la conexión
-            style: TextStyle(fontSize: 20),
+            style: TextStyle(fontSize: 15),
+            textAlign: TextAlign.center, // Asegura que el texto esté centrado
           ),
           SizedBox(height: 20),
+          
+          // Texto con el estado de la autenticación
           Text(
             authStatus, // Mostrar el estado de la autenticación
             style: TextStyle(fontSize: 18, color: Colors.blueGrey),
+            textAlign: TextAlign.center, // Asegura que el texto esté centrado
           ),
           SizedBox(height: 20),
+          
+          // Si no está autenticado, mostrar el botón de iniciar sesión
           if (authStatus == 'No autenticado')
             ElevatedButton(
               onPressed: signInWithGoogle,
               child: Text('Iniciar Sesión con Google'),
             ),
           SizedBox(height: 20),
+          
+          // Si está autenticado, mostrar el botón de cerrar sesión
           if (authStatus != 'No autenticado')
             ElevatedButton(
               onPressed: signOut,
@@ -99,6 +110,10 @@ class _Log_pageState extends State<Log_page> {
             ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+
 }

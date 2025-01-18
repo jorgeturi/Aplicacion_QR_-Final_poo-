@@ -47,7 +47,7 @@ class boton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: margin,
-      width: 350,
+      width: 300,
       height: 60,
       child: ElevatedButton(
         onPressed: onPressed,
