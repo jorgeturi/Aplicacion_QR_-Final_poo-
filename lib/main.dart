@@ -1,24 +1,15 @@
+import 'package:finalpoo_turina/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'pantalla_principal.dart';
-import 'firebase_options.dart';
-import 'package:firebase_core/firebase_core.dart'; 
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'styles.dart';
 
 void main() async {
   // Asegura la inicialización del entorno de Flutter
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized(); //necesario cuando se usan metodos async en el main
 
-  // Inicializa Firebase antes de ejecutar la app
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  final authService = AuthService();
+  await authService.initializeFirebase();
 
-  // Test Firestore
-  //await _testFirestore();
-
-  // Ejecuta la app
   runApp(MyApp());
 }
 
@@ -29,17 +20,5 @@ class MyApp extends StatelessWidget {
       home: pantalla_principal(),
       theme: appTheme(),
     );
-  }
-}
-
-Future<void> _testFirestore() async {
-  try {
-    // Escribe en Firestore
-    await FirebaseFirestore.instance.collection('test').add({
-      'message': 'Hola desde Flutter',
-    });
-    print("Documento agregado con éxito.");
-  } catch (e) {
-    print("Error al agregar documento: $e");
   }
 }

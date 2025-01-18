@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:finalpoo_turina/auth_service.dart';
 import 'package:finalpoo_turina/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -9,6 +10,7 @@ import 'qr_clases.dart';
 import 'package:intl/intl.dart';
 
 
+import 'package:cloud_firestore/cloud_firestore.dart'; //para guardar la info
 
 
 class MyQRsPage extends StatefulWidget{
@@ -157,11 +159,8 @@ void _showQR(QREstatico qrparticular) {
           const SizedBox(height: 10),
           ElevatedButton(
             onPressed: () async {
-              MyQRsPage.generatedQRs.remove(qrparticular);
-              await QRStorage.deleteQRFromFirestore(qrparticular.getId());
-              await QRStorage.saveQRsToFile(MyQRsPage.generatedQRs);
-              Navigator.of(context).pop();
-              setState(() {});
+              _borrarQR(qrparticular);
+
             },
             child: const Text('Eliminar'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -183,7 +182,7 @@ void _showQRInfo(QREstatico qrparticular) async {
   final url = qrparticular.url;
   final formateador = DateFormat('yyyy-MM-dd HH:mm:ss');
   final creacionFormateada = formateador.format(qrparticular.fechaCreacion);
-  String? usuariosPermitidos = await QrStorageHandle.obtenerUsuariosPermitidos(qrparticular.getId());
+  String? usuariosPermitidos = await QRStorage.getUsuariosPermitidos(qrparticular.getId());
   usuariosPermitidos ??= "todos"; // si es nulo asigna "todos", recomendado por compilador
 
   String? expiracionFormateada;
@@ -192,6 +191,10 @@ void _showQRInfo(QREstatico qrparticular) async {
     final expiracion = qrparticular.fechaExpiracion;
     expiracionFormateada = formateador.format(expiracion);
   }
+
+   // Obtener información adicional
+  final List<Map<String, dynamic>> informacion =
+      await obtenerInformacion(qrparticular.getId());
 
 
   showDialog(
@@ -210,7 +213,8 @@ void _showQRInfo(QREstatico qrparticular) async {
     child: TextButton(
       onPressed: () {
         // Lógica para agregar información
-        _agregar_informacion(context);
+        Navigator.of(context).pop();
+        _agregar_informacion(qrparticular);
 
       },
       child: Text('Agregar Información'),
@@ -246,6 +250,25 @@ void _showQRInfo(QREstatico qrparticular) async {
             Text('fecha expiracion: $expiracionFormateada'),
           SizedBox(height: 10),
           Text('Usuarios permitidos: $usuariosPermitidos'),
+
+
+          Text(
+              'Información adicional:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            if (informacion.isNotEmpty)
+              ...informacion.map((info) {
+                final timestamp = info['timestamp'] != null
+                    ? formateador.format(info['timestamp'].toDate())
+                    : 'Sin timestamp';
+                final mensaje = info['mensaje'] ?? 'Sin mensaje';
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 5.0),
+                  child: Text('- $mensaje (Fecha: $timestamp)'),
+                );
+              }).toList()
+            else
+              Text('No hay información disponible.'),
           
 
           const SizedBox(height: 500),
@@ -272,14 +295,14 @@ void _showQRInfo(QREstatico qrparticular) async {
 
 
 
-void _agregar_informacion(BuildContext context) {
+void _agregar_informacion(QREstatico qrparticular) {
   final TextEditingController _controller = TextEditingController();
 
   showDialog(
-    context: context,
+    context: context, // context sigue siendo necesario aquí
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Agregar Información', textAlign: TextAlign.center),
+        title: Text('Agregar Información - ${qrparticular.getAlias()}', textAlign: TextAlign.center),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -312,12 +335,10 @@ void _agregar_informacion(BuildContext context) {
             onPressed: () {
               final String inputText = _controller.text.trim();
               if (inputText.isNotEmpty) {
-                // Aquí puedes manejar el texto ingresado
-                print("Información guardada: $inputText");
-              } else {
-                print("No se ingresó información");
+                print("Información a guardar para ${qrparticular.getAlias()}: $inputText");
+                _confirmarAgregarInformacion(qrparticular, inputText); // Llama a otra función si es necesario
               }
-              Navigator.of(context).pop(); // Cerrar el diálogo
+              //Navigator.of(context).pop(); // Cierra el diálogo después de guardar
             },
             child: Text('Guardar'),
           ),
@@ -330,8 +351,167 @@ void _agregar_informacion(BuildContext context) {
 
 
 
+void _confirmarAgregarInformacion(QREstatico qr, String nuevaInfo) {
+  final id = qr.getId();
+  _mostrarConfirmacion(
+    context: context,
+    titulo: '¿Agregar Información?',
+    mensaje: 'Vas a agregar esta información: "$nuevaInfo" al QR:"$id ".',
+    onConfirmar: () {
+      _agregarNuevaInformacion(qr, nuevaInfo);
+      Navigator.of(context).pop();
+    },
+  );
+}
+
+
+void _agregarNuevaInformacion(QREstatico qr, String nuevaInfo) async {
+  // Lógica para manejar la información
+  final id = qr.getId();
+ AuthService authService = AuthService(); // Crear una instancia
+  final User = await authService.checkIfUserIsLoggedIn(); // Llamar al método
+  
+  if (User != null) {
+      final uid = User.uid; // UID del usuario autenticado
+      final firestore = FirebaseFirestore.instance;
+
+      // Ruta al documento en la subcolección 'informacion'
+      final docRef = firestore
+          .collection('users')
+          .doc(uid)
+          .collection('qrs')
+          .doc(qr.getId())
+          .collection('informacion');
+
+      // Crear un nuevo documento con el timestamp y mensaje
+      await docRef.add({
+        'timestamp': FieldValue.serverTimestamp(),  // Guardar el timestamp del servidor
+        'mensaje': nuevaInfo,  // El mensaje que se pasa como parámetro
+      });
+
+      print('Información agregada exitosamente.');
+    } else {
+      print('No hay usuario autenticado.');
+    }
+}
 
 
 
 
+
+
+void _borrarQR(QREstatico qr) async {
+  _mostrarConfirmacion(
+    context: context,
+    titulo: '¿Estás seguro?',
+    mensaje: 'Vas a borrar el QR: "${qr.getAlias()}". Esta acción no se puede deshacer.',
+    onConfirmar: () async {
+      Navigator.of(context).pop();
+      MyQRsPage.generatedQRs.remove(qr);
+      await QRStorage.deleteQRFromFirestore(qr.getId());
+      await QRStorage.saveQRsToFile(MyQRsPage.generatedQRs);
+      setState(() {}); //para que rebuildee el listado
+      print("QR eliminado: ${qr.getAlias()}");
+    },
+  );
+}
+
+
+
+
+
+
+Future<List<Map<String, dynamic>>> obtenerInformacion(String qrId) async {
+  try {
+    AuthService authService = AuthService(); // Crear una instancia
+    final user = await authService.checkIfUserIsLoggedIn();
+
+    if (user != null) {
+      final uid = user.uid; // UID del usuario autenticado
+      final firestore = FirebaseFirestore.instance;
+
+      // Ruta al documento en la subcolección 'informacion'
+      final docRef = firestore
+          .collection('users')
+          .doc(uid)
+          .collection('qrs')
+          .doc(qrId)
+          .collection('informacion');
+
+      // Obtener todos los documentos en la subcolección 'informacion'
+      final querySnapshot = await docRef.orderBy('timestamp', descending: true).get();
+
+      // Extraer la data de los documentos
+      List<Map<String, dynamic>> informacion = [];
+      querySnapshot.docs.forEach((doc) {
+        informacion.add(doc.data());
+      });
+
+      return informacion;
+    } else {
+      print('No hay usuario autenticado.');
+      return [];
+    }
+  } catch (e) {
+    print('Error al obtener información: $e');
+    return [];
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void _mostrarConfirmacion({
+  required BuildContext context,
+  required String titulo,
+  required String mensaje,
+  required VoidCallback onConfirmar,
+  VoidCallback? onCancelar,
+}) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(titulo, textAlign: TextAlign.center),
+        content: Text(mensaje, textAlign: TextAlign.center),
+        actions: [
+          TextButton(
+            onPressed: onCancelar ?? () => Navigator.of(context).pop(), // Cerrar si no hay acción personalizada
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Cerrar el diálogo antes de confirmar
+              onConfirmar(); // Ejecutar la acción confirmada
+            },
+            child: Text('Confirmar'),
+          ),
+        ],
+      );
+    },
+  );
 }

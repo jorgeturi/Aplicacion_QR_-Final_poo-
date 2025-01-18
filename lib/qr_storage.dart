@@ -297,13 +297,3 @@ static Future<String?> getUsuariosPermitidos(String qrId) async {
 
 }
 
-class QrStorageHandle
-{
-
-    static Future<String?> obtenerUsuariosPermitidos(String qrId) async {
-      String? resultado = await QRStorage.getUsuariosPermitidos(qrId);
-      print(resultado);
-      return resultado;
-    }
-
-}

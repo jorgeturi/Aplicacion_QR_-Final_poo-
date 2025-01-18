@@ -109,7 +109,12 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+platforms:
+    macos:
+
+
 flutter_icons:
   android: true
   ios: true
   image_path: "imagenes/app_icono.jpg"
+

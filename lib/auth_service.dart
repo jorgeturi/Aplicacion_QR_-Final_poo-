@@ -11,14 +11,16 @@ class AuthService {
     clientId: '929827470228-tt162jkolsa79a09u20l4h5lj6ve1kfg.apps.googleusercontent.com',
   );
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  late FirebaseAuth _auth = FirebaseAuth.instance;
+  late FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Inicializar Firebase según la plataforma
   Future<void> initializeFirebase() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    _auth = FirebaseAuth.instance;
+    _firestore = FirebaseFirestore.instance;
   }
 
   // Verificar si el usuario ya está autenticado
