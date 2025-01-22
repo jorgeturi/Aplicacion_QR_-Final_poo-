@@ -183,12 +183,16 @@ class BiometricAuthService {
         return 'No se ha configurado ninguna biometría en este dispositivo';
       }
 
-      bool authenticated = await auth.authenticate(
-        localizedReason: 'Escanea tu huella o cara para desbloquear la app',
-        options: AuthenticationOptions(
-          stickyAuth: true,
-        ),
-      );
+      bool authenticated = false;
+
+      while (!authenticated) {
+        authenticated = await auth.authenticate(
+          localizedReason: 'Por favor, autentíquese usando biometría.',
+          options: AuthenticationOptions(
+            stickyAuth: true,
+          ),
+        );
+      }
 
       if (authenticated) {
         return 'App desbloqueada con biometría';

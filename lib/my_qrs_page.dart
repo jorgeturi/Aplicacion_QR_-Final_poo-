@@ -1,74 +1,39 @@
 import 'package:finalpoo_turina/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:finalpoo_turina/qr_storage.dart';
 import 'package:flutter/foundation.dart'; // Para el manejo de la lista
 import 'qr_clases.dart';
+import 'qr_manager.dart';
 import 'package:intl/intl.dart';
 
 class MyQRsPage extends StatefulWidget {
-  static List<QREstatico> generatedQRs = []; // Lista de objetos QR
-
-  // Método para agregar un QR a la lista de QRs generados
-  static Future<void> addGeneratedQR(QREstatico qr, String users) async {
-    if (!generatedQRs.any((existingQR) => existingQR.id == qr.id)) {
-      await QRStorage.addGeneratedQRToFirestore(
-          qr, users); // Esperamos que Firestore termine
-      generatedQRs.add(qr);
-      QRStorage.saveQRsToFile(
-          generatedQRs); // Guardamos el nuevo QR en el archivo
-    }
-  }
-
-  // Método asíncrono para cargar todos los QRs desde Firestore y archivos
-  static Future<void> loadAllQRs() async {
-    print("Cargando todos los QRs..."); // Mensaje de depuración
-
-    final fileQRs =
-        <QREstatico>[]; // Lista para almacenar los QRs desde el archivo
-    final firestoreQRs =
-        await QRStorage.loadQRsFromFirestore(); // Cargar QRs desde Firestore
-
-    await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo
-
-    // Usar un Map para asegurarse de que los QRs sean únicos por su ID
-    final allQRsMap = <String, QREstatico>{};
-
-    for (var qr in [...fileQRs, ...firestoreQRs]) {
-      if (qr != null) {
-        allQRsMap[qr.getId()] =
-            qr; // Insertar el QR en el mapa, sobrescribiendo duplicados por ID
-      }
-    }
-
-    // Obtener la lista de todos los QRs sin duplicados
-    final allQRs = allQRsMap.values.toList();
-
-    // Si los datos nuevos son distintos a los actuales, actualizar la lista
-    if (!listEquals(allQRs, generatedQRs)) {
-      generatedQRs = allQRs;
-      print("QRs cargados y actualizados: ${generatedQRs.length}");
-      for (var qr in firestoreQRs) {
-        print('ID del QR: ${qr.getId()}');
-      }
-    } else {
-      print("Los QRs ya están actualizados.");
-    }
-  }
-
   @override
   _MyQRsPageState createState() => _MyQRsPageState();
 }
 
 class _MyQRsPageState extends State<MyQRsPage> {
-  QRStorage almacenamiento = QRStorage();
-
   @override
   void initState() {
+    _loadQRs();
     super.initState();
-    MyQRsPage.loadAllQRs().then((_) {
+  }
+
+  Future<void> _loadQRs() async {
+    try {
+      await QRManager.loadAllQRs();    
       setState(() {});
-    });
+    } catch (e) {
+      print("Error cargando QRs: $e");
+    }
+  }
+
+  Future<void> _clearAllQRs() async {
+    try {
+      await QRManager.clearAllQRs(); // Use the class name here
+      setState(() {});
+    } catch (e) {
+      print("Error al limpiar QRs: $e");
+    }
   }
 
   @override
@@ -80,45 +45,26 @@ class _MyQRsPageState extends State<MyQRsPage> {
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () async {
-              setState(() {
-                MyQRsPage.generatedQRs.clear(); // Limpia la lista en memoria
-              });
-
-              // Borra el archivo local directamente
-              await QRStorage.deleteLocalFile();
-              await QRStorage.deleteAllQRsFromFirestore();
-
-              // Opcional: Recargar desde Firestore para sincronizar
-              await MyQRsPage.loadAllQRs();
-              setState(() {}); // Actualiza la UI con los datos recargados
+              await _clearAllQRs();
             },
           ),
         ],
       ),
-      body: MyQRsPage.generatedQRs.isEmpty
+      body: QRManager.generatedQRs.isEmpty
           ? const Center(child: Text("No hay QRs generados."))
           : ListView.builder(
-              itemCount: MyQRsPage.generatedQRs.length,
+              itemCount: QRManager.generatedQRs.length,
               itemBuilder: (context, index) {
-                // Aquí estamos trabajando con un objeto QREstatico
-                final qr = MyQRsPage.generatedQRs[index];
-
-                // Ahora obtenemos el id y el alias de cada objeto QREstatico
-                final id = qr.id;
-                final alias = qr.alias;
-
+                final qr = QRManager.generatedQRs[index];
                 return ListTile(
-                  title: Text(alias), // Muestra el alias
-                  subtitle: Text("ID: $id"), // Muestra el ID
-                  onTap: () => _showQR(qr), // Pasa la URL generada al mostrarlo
+                  title: Text(qr.alias),
+                  subtitle: Text("ID: ${qr.id}"),
+                  onTap: () => _showQR(qr),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await MyQRsPage.loadAllQRs();
-          setState(() {});
-        },
+        onPressed: _loadQRs,
         child: const Icon(Icons.refresh),
         tooltip: 'Actualizar QR\'s',
         backgroundColor: AppColors.primary,
@@ -135,9 +81,13 @@ class _MyQRsPageState extends State<MyQRsPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(alias,
-            style: const TextStyle(fontSize: 18.0),
-            textAlign: TextAlign.center),
+        title: Text(
+          alias,
+          style: const TextStyle(fontSize: 18.0),
+          textAlign: TextAlign.center,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -185,9 +135,12 @@ class _MyQRsPageState extends State<MyQRsPage> {
     final escaneado = qrparticular.vecesEscaneado;
     final ingresado = qrparticular.vecesIngresado;
     String? usuariosPermitidos =
-        await QRStorage.getUsuariosPermitidos(qrparticular.getId());
-    usuariosPermitidos ??=
-        "todos"; // si es nulo asigna "todos", recomendado por compilador
+        await QRManager.getUsuariosPermitidos(qrparticular.getId());
+    usuariosPermitidos ??= "todos"; // si es nulo asigna "todos", recomendado por compilador
+    if (usuariosPermitidos == "")
+    {
+      usuariosPermitidos = "todos";
+    }
 
     String? expiracionFormateada;
     // Comprueba si el QR es del tipo QRDinamico para acceder a la fecha de expiración
@@ -198,12 +151,18 @@ class _MyQRsPageState extends State<MyQRsPage> {
 
     // Obtener información adicional
     final List<Map<String, dynamic>> informacion =
-        await almacenamiento.obtenerInformacion(qrparticular.getId());
+        await QRManager.obtenerInformacion(qrparticular.getId());
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Información de $alias', textAlign: TextAlign.center),
+        title: Text(
+          'Información de $alias',
+          textAlign: TextAlign.center,
+          overflow: TextOverflow
+              .ellipsis, // Agrega los puntos suspensivos si el texto es muy largo
+          maxLines: 2, // Limita el texto a una sola línea
+        ),
         content: SingleChildScrollView(
           // Agrega scroll al contenido
           child: Column(
@@ -245,20 +204,11 @@ class _MyQRsPageState extends State<MyQRsPage> {
                       ],
                     ),
               SizedBox(height: 10),
-              Row(
-                children: [
-                  Text('Alias: ',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(alias),
-                ],
-              ),
-              Row(
-                children: [
-                  Text('Contenido del QR: ',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(url),
-                ],
-              ),
+              Text('Alias: ', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(alias),
+              SizedBox(height: 10),
+              Text('Contenido del QR: ', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(url),
               SizedBox(height: 10),
               Row(
                 children: [
@@ -394,7 +344,7 @@ class _MyQRsPageState extends State<MyQRsPage> {
       titulo: '¿Agregar Información?',
       mensaje: 'Vas a agregar esta información: "$nuevaInfo" al QR:"$id ".',
       onConfirmar: () {
-        almacenamiento.agregarNuevaInformacion(qr, nuevaInfo);
+        QRManager.agregarNuevaInformacion(qr, nuevaInfo);
         Navigator.of(context).pop();
       },
     );
@@ -408,9 +358,9 @@ class _MyQRsPageState extends State<MyQRsPage> {
           'Vas a borrar el QR: "${qr.getAlias()}". Esta acción no se puede deshacer.',
       onConfirmar: () async {
         Navigator.of(context).pop();
-        MyQRsPage.generatedQRs.remove(qr);
-        await QRStorage.deleteQRFromFirestore(qr.getId());
-        await QRStorage.saveQRsToFile(MyQRsPage.generatedQRs);
+        QRManager.remove(qr);
+        await QRManager.deleteQRFromFirestore(qr.getId());
+        await QRManager.saveQRsToFile(QRManager.generatedQRs);
         setState(() {}); //para que rebuildee el listado
         print("QR eliminado: ${qr.getAlias()}");
       },

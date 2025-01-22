@@ -31,7 +31,7 @@ class QREstatico {
 
   @override
   String toString() {
-    return "$url|$alias|${fechaCreacion.toIso8601String()}|$owner|$vecesEscaneado|$vecesIngresado";
+    return "$url|$alias|${fechaCreacion.toIso8601String()}|$owner|$vecesEscaneado|$vecesIngresado|$id";
   }
 
   // Método para convertir el objeto a un mapa (JSON)
@@ -85,7 +85,7 @@ class QRdinamico extends QREstatico {
 
   @override
   String toString() {
-    return "$url|$alias|${fechaExpiracion.toIso8601String()}|${fechaCreacion.toIso8601String()}|$owner|$vecesEscaneado|$vecesIngresado";
+    return "$url|$alias|${fechaExpiracion.toIso8601String()}|${fechaCreacion.toIso8601String()}|$owner|$vecesEscaneado|$vecesIngresado|$id";
   }
 
   // Método para convertir el objeto a un mapa (JSON)

@@ -8,18 +8,11 @@ void main() async {
   // Asegura la inicialización del entorno de Flutter
   WidgetsFlutterBinding.ensureInitialized(); //necesario cuando se usan metodos async en el main
 
-  final authService = AuthService();
-  await authService.initializeFirebase();
-
-
   final biometricService = BiometricAuthService();
   bool biometricos = await biometricService.loadBiometricPreference();
   if (biometricos == true){
-  String authStatus = await biometricService.authenticateBiometrics();
-    print(authStatus);  // Imprimir el resultado de la autenticación
+   await biometricService.authenticateBiometrics();
   }
-  
-  
 
   runApp(MyApp());
 }

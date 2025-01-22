@@ -7,7 +7,7 @@ import 'dart:convert';
 
 class QRStorage {
   // Función para agregar un QR generado a Firestore
- static Future<void> addGeneratedQRToFirestore(QREstatico qr , String? users) async {
+ static Future<void> addGeneratedQRToFirestore(QREstatico qr, String? users) async {
   try {
     final User? user = FirebaseAuth.instance.currentUser;
 
@@ -15,20 +15,8 @@ class QRStorage {
       final uid = user.uid; // Obtener el UID del usuario autenticado
       final firestore = FirebaseFirestore.instance;
 
-      // Preparar los datos base para Firestore
-      final qrData = {
-        'url': qr.url,
-        'alias': qr.alias,
-        'fechaCreacion': qr.fechaCreacion.toIso8601String(),
-        'owner': qr.owner,
-        'vecesEscaneado': qr.vecesEscaneado,
-        'vecesIngresado': qr.vecesIngresado,
-      };
-
-      // Si es un QR dinámico, agregar la fecha de expiración
-      if (qr is QRdinamico) {
-        qrData['fechaExpiracion'] = qr.fechaExpiracion.toIso8601String();
-      }
+      // Convertir el objeto QR a un mapa usando toJson
+      final qrData = qr.toJson();
 
       // Usar el método 'add' para que Firestore genere un ID único automáticamente
       final docRef = await firestore.collection('users').doc(uid).collection('qrs').add(qrData);
@@ -36,10 +24,14 @@ class QRStorage {
       // Obtener el ID generado por Firebase
       final generatedId = docRef.id;
 
-      print('QR agregado a Firestore con ID: $generatedId para el usuario con UID: $uid');
+      await docRef.update({
+        'id': generatedId,  // Agregar el campo 'id' con el valor del ID generado
+      });
 
       // Asignar el ID generado al objeto QR local para que lo puedas usar
-      qr.id = generatedId;  // Actualizar el objeto QR con el ID generado
+      qr.id = generatedId; // Actualizar el objeto QR con el ID generado
+
+      // Agregar datos adicionales en una subcolección
       final subCollectionRef = docRef.collection('informacion');
       final infoData = {
         'usuarios permitidos': users,
@@ -48,12 +40,7 @@ class QRStorage {
       // Agregar documento a la subcolección
       await subCollectionRef.doc("usuarios con acceso").set(infoData);
 
-      print("lo guarde en firestore");
-      print("ahora veo que qr tiene id");
-      print( qr.getId());
-
-
-
+      
     } else {
       print('No hay usuario autenticado.');
     }
@@ -68,7 +55,7 @@ class QRStorage {
 
 
 static Future<List<QREstatico>> loadQRsFromFirestore() async {
-  print("Entré a cargar desde Firestore");
+  print("Entré a cargar desde FirestoreEEEEEEEEEEEEEEEEEEE");
   try {
     final User? user = FirebaseAuth.instance.currentUser;
     print("El usuario actual es: $user");
@@ -95,46 +82,17 @@ static Future<List<QREstatico>> loadQRsFromFirestore() async {
       List<QREstatico> qrList = querySnapshot.docs.map((doc) {
         print("Procesando documento: ${doc.id}");
 
-        final url = doc['url'] as String;
-        final alias = doc['alias'] as String;
-        final fechaCreacion = DateTime.parse(doc['fechaCreacion'] as String);
-        final owner = doc['owner'] as String;
-        final id = doc.id; // Este es el ID generado por Firestore
-        final vecesEscaneado = doc['vecesEscaneado'] as String? ?? "0";
-        final vecesIngresado = doc['vecesIngresado'] as String? ?? "0";
+        final Map<String, dynamic> data = doc.data();
 
-        // Verificar si el campo 'fechaExpiracion' existe antes de acceder a él
-        final fechaExpiracionStr = doc.data().containsKey('fechaExpiracion') ? doc['fechaExpiracion'] : null;
-
-        // Imprimir valores para depuración
-        print("Alias: $alias, veces Escaneado $vecesEscaneado");
-
-        if (fechaExpiracionStr != null) {
-          // Si existe la fecha de expiración, es un QRdinamico
-          final fechaExpiracion = DateTime.parse(fechaExpiracionStr as String);
-          print("QR Dinámico con fecha de expiración: $fechaExpiracion");
-          return QRdinamico(
-            url: url,
-            alias: alias,
-            fechaCreacion: fechaCreacion,
-            owner: owner,
-            fechaExpiracion: fechaExpiracion,
-            id: id,
-            vecesEscaneado: vecesEscaneado, // Asegúrate de tener estos valores
-            vecesIngresado: vecesIngresado, // Asegúrate de tener estos valores
-          );
+        // Si fechaExpiracion es null o no existe, es un QREstatico
+        if (data['fechaExpiracion'] != null && data['fechaExpiracion'] is String) {
+          print("QR Dinámico con fecha de expiración: $data['fechaExpiracion']");
+          // Crear QRdinamico usando fromJson
+          return QRdinamico.fromJson(data);
         } else {
-          // Si no existe 'fechaExpiracion', es un QREstatico
           print("QR Estático sin fecha de expiración");
-          return QREstatico(
-            url: url,
-            alias: alias,
-            fechaCreacion: fechaCreacion,
-            owner: owner,
-            id: id,
-            vecesEscaneado: vecesEscaneado, // Asegúrate de tener estos valores
-            vecesIngresado: vecesIngresado, // Asegúrate de tener estos valores
-          );
+          // Crear QREstatico usando fromJson
+          return QREstatico.fromJson(data);
         }
       }).toList();
 
@@ -166,8 +124,8 @@ static Future<void> saveQRsToFile(List<QREstatico> generatedQRs) async {
 
 
 
-    print("ahora veo que qr tiene id");
-    print( jsonString);
+    print("EN EL ARCHIVO LO QUE METI FUE:");
+    print( jsonString.toString());
 
     print('QRs guardados en el archivo local.');
   } catch (e) {
@@ -322,7 +280,7 @@ static Future<String?> getUsuariosPermitidos(String qrId) async {
 
 
 
-void agregarNuevaInformacion(QREstatico qr, String nuevaInfo) async {
+static void agregarNuevaInformacion(QREstatico qr, String nuevaInfo) async {
   // Lógica para manejar la información
   final id = qr.getId();
   final User? user = FirebaseAuth.instance.currentUser;
@@ -358,7 +316,7 @@ void agregarNuevaInformacion(QREstatico qr, String nuevaInfo) async {
 
 
 
-Future<List<Map<String, dynamic>>> obtenerInformacion(String qrId) async {
+static Future<List<Map<String, dynamic>>> obtenerInformacion(String qrId) async {
   try {
     //AuthService authService = AuthService(); // Crear una instancia
     //final user = await authService.checkIfUserIsLoggedIn();
