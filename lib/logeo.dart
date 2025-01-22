@@ -43,20 +43,11 @@ class _Log_pageState extends State<Log_page> {
 
     // Si se habilita la biometría, intentar desbloquear la app
     if (useBiometrics) {
-      _authenticateBiometricsOnStart();
+      biometricAuthService.authenticateBiometrics();
     }
   }
 
-  // Llamamos al servicio de biometría
-  Future<void> _authenticateBiometricsOnStart() async {
-    if (kIsWeb) {
-      return;
-    }
-    String result = await biometricAuthService.authenticateBiometrics();
-    setState(() {
-      authStatus = result;
-    });
-  }
+ 
 
   
 

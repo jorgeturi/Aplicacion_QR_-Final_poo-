@@ -87,3 +87,49 @@ ThemeData appTheme() {
     ),
   );
 }
+
+
+
+
+class IconButtonWithText extends StatelessWidget {
+  final String texto;
+  final IconData icono;
+  final VoidCallback onPressed;
+
+  IconButtonWithText({
+    required this.texto,
+    required this.icono,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color.fromARGB(255, 247, 239, 239),
+        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+
+        minimumSize: Size(80, 80), // Dimensiones cuadradas del botón
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Icon(icono, size: 40, color: const Color.fromARGB(255, 0, 0, 0)),
+          SizedBox(height: 8),
+          Text(
+            texto,
+            style: TextStyle(
+                fontSize: 16,
+                color: const Color.fromARGB(255, 34, 25, 163),
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+}

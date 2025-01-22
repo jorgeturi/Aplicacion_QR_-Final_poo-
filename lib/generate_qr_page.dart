@@ -1,6 +1,4 @@
-import 'package:finalpoo_turina/qr_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'my_qrs_page.dart'; //para mostrar los QR guardados
 import 'qr_clases.dart';
 import 'auth_service.dart';
@@ -11,16 +9,17 @@ class GenerateQRPage extends StatefulWidget {
 }
 
 class _GenerateQRPageState extends State<GenerateQRPage> {
+
   final TextEditingController _controller = TextEditingController();
-  bool isDynamic = false; // Si es un QR dinámico
-  int? expirationTime; // Tiempo de expiración en minutos
-  DateTime? expirationDate; // Fecha y hora de expiración
+  bool _isDynamic = false; // Si es un QR dinámico
+  int? _expirationTime; // Tiempo de expiración en minutos
+  DateTime? _expirationDate; // Fecha y hora de expiración
   final TextEditingController _controllertiempo = TextEditingController();
-  String ownerId = "local"; // O se podría reemplazar por la ID de Firebase
+  String _ownerId = "local"; // O se podría reemplazar por la ID de Firebase
   final TextEditingController _controllerAlias = TextEditingController();
 
   final AuthService _authService = AuthService();
-  bool allowSpecificUsers = false;
+  bool _allowSpecificUsers = false;
 
   TextEditingController _controllerEmails = TextEditingController();
 
@@ -36,29 +35,38 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
     await _authService.initializeFirebase();  // Inicializa Firebase si aún no se ha hecho
     final user = await _authService.checkIfUserIsLoggedIn();
 
+    if (user == null){
+
+      showError2(context, "Se recomienda iniciar sesion para no perder sincronismo",);
+    }
+
     setState(() {
-      ownerId = user?.uid ?? "local";  // Si el usuario está logueado, usamos su UID; si no, usamos "local"
+      _ownerId = user?.uid ?? "local";  // Si el usuario está logueado, usamos su UID; si no, usamos "local"
     });
   }
 
 
   // Guardar QR generado
   void _saveQR(String qrText) {
-    final newQR = isDynamic
+    final newQR = _isDynamic
         ? QRdinamico(
             url: qrText,
             alias: _controllerAlias.text,
             fechaCreacion: DateTime.now(),
-            owner: ownerId,
-            fechaExpiracion: expirationDate!,
+            owner: _ownerId,
+            fechaExpiracion: _expirationDate!,
             id: "idvaciodinamico",
+            vecesEscaneado: "0",
+            vecesIngresado: "0",
           )
         : QREstatico(
             url: qrText,
             alias: _controllerAlias.text,
             fechaCreacion: DateTime.now(),
-            owner: ownerId,
+            owner: _ownerId,
             id: "idvacioestatico",
+            vecesEscaneado: "0",
+            vecesIngresado: "0",
           );
     
     // Agregar el QR generado a la lista de QR guardados
@@ -79,12 +87,12 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
 
   String _generateQR() {
     print("el dueño es : ");
-    print(ownerId);
-    if (isDynamic && expirationTime != null) {
-      expirationDate = DateTime.now().add(Duration(minutes: expirationTime!));
+    print(_ownerId);
+    if (_isDynamic && _expirationTime != null) {
+      _expirationDate = DateTime.now().add(Duration(minutes: _expirationTime!));
 
       // Verificar que la fecha de expiración esté dentro de un rango razonable
-      if (expirationDate!.isBefore(DateTime.now())) {
+      if (_expirationDate!.isBefore(DateTime.now())) {
         showError(context, "La fecha de expiración no puede ser en el pasado.");
         _controllertiempo.clear();
         return '';
@@ -131,10 +139,10 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
               children: [
                 Text("QR Dinámico: "),
                 Checkbox(
-                  value: isDynamic,
+                  value: _isDynamic,
                   onChanged: (value) {
                     setState(() {
-                      isDynamic = value!;
+                      _isDynamic = value!;
                     });
                   },
                 ),
@@ -142,7 +150,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             ),
 
             // Campo para el tiempo de validez si es dinámico
-            if (isDynamic)
+            if (_isDynamic)
               TextField(
                 controller: _controllertiempo,
                 keyboardType: TextInputType.number,
@@ -151,13 +159,13 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                 ),
                 onChanged: (value) {
                   setState(() {
-                    expirationTime = int.tryParse(value);
+                    _expirationTime = int.tryParse(value);
                   });
 
                   // Limitar valor
-      if (expirationTime != null && expirationTime! > 26280000000) {
-        expirationTime = 26280000000; // Limita el valor
-        _controllertiempo.text = expirationTime.toString(); // Actualiza el campo
+      if (_expirationTime != null && _expirationTime! > 26280000000) {
+        _expirationTime = 26280000000; // Limita el valor
+        _controllertiempo.text = _expirationTime.toString(); // Actualiza el campo
         showError(context, "el limite son 50000 años");
       }
 
@@ -175,10 +183,10 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
                   child : Text( "Permitir acceso a usuarios específicos: "),
                 ),
                 Checkbox(
-                  value: allowSpecificUsers,
+                  value: _allowSpecificUsers,
                   onChanged: (value) {
                     setState(() {
-                      allowSpecificUsers = value!;
+                      _allowSpecificUsers = value!;
                     });
                   },
                 ),
@@ -186,7 +194,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             ),
 
             // Campo para ingresar correos electrónicos, visible solo si se habilita la opción anterior
-            if (allowSpecificUsers)
+            if (_allowSpecificUsers)
   TextField(
     controller: _controllerEmails,
     maxLines: 3, // Configura el campo para que tenga hasta 3 líneas
@@ -208,8 +216,8 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
             ElevatedButton(
               onPressed: () {
                 if (_controller.text.isEmpty ||
-                    (isDynamic && int.tryParse(_controllertiempo.text) == null) ||
-                    _controllerAlias.text.isEmpty || allowSpecificUsers && _controllerEmails.text.isEmpty) {
+                    (_isDynamic && int.tryParse(_controllertiempo.text) == null) ||
+                    _controllerAlias.text.isEmpty || _allowSpecificUsers && _controllerEmails.text.isEmpty) {
                   showError(context, 'Por favor, complete todos los campos.');
                 } else {
                   _saveQR(_generateQR()); // Guardamos el QR
@@ -241,4 +249,32 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
       );
     });
   }
+
+
+
+  void showError2(BuildContext context, String message) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Atención"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context); // Cierra el cuadro de diálogo
+             Navigator.pop(context);
+            },
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  });
+}
+
+
+
+
+
 }

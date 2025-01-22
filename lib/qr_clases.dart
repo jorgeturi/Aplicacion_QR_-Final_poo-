@@ -4,6 +4,8 @@ class QREstatico {
   final DateTime fechaCreacion;
   final String owner;
   String id;
+  final String vecesEscaneado;
+  final String vecesIngresado;
 
   QREstatico({
     required this.url,
@@ -11,13 +13,15 @@ class QREstatico {
     required this.fechaCreacion,
     required this.owner,
     required this.id,
+    required this.vecesEscaneado,
+    required this.vecesIngresado,
   });
 
   String getAlias() {
     return alias;
   }
 
-  String getId(){
+  String getId() {
     return id;
   }
 
@@ -25,12 +29,12 @@ class QREstatico {
     id = newId;
   }
 
-   String toString() {
-    return "$url|$alias|${fechaCreacion.toIso8601String()}|$owner";
+  @override
+  String toString() {
+    return "$url|$alias|${fechaCreacion.toIso8601String()}|$owner|$vecesEscaneado|$vecesIngresado";
   }
 
-
-   // Método para convertir el objeto a un mapa (JSON)
+  // Método para convertir el objeto a un mapa (JSON)
   Map<String, dynamic> toJson() {
     return {
       'url': url,
@@ -38,6 +42,8 @@ class QREstatico {
       'fechaCreacion': fechaCreacion.toIso8601String(),
       'owner': owner,
       'id': id,
+      'vecesEscaneado': vecesEscaneado,
+      'vecesIngresado': vecesIngresado,
     };
   }
 
@@ -49,6 +55,8 @@ class QREstatico {
       fechaCreacion: DateTime.parse(json['fechaCreacion']),
       owner: json['owner'],
       id: json['id'],
+      vecesEscaneado: json['vecesEscaneado'],
+      vecesIngresado: json['vecesIngresado'],
     );
   }
 }
@@ -63,18 +71,21 @@ class QRdinamico extends QREstatico {
     required String owner,
     required this.fechaExpiracion,
     required String id,
+    required String vecesEscaneado,
+    required String vecesIngresado,
   }) : super(
           url: url,
           alias: alias,
           fechaCreacion: fechaCreacion,
           owner: owner,
           id: id,
+          vecesEscaneado: vecesEscaneado,
+          vecesIngresado: vecesIngresado,
         );
 
   @override
   String toString() {
-    // Ahora no llamamos a super.toString(), sino que construimos la cadena directamente.
-    return "$url|$alias|${fechaExpiracion.toIso8601String()}|${fechaCreacion.toIso8601String()}|$owner";
+    return "$url|$alias|${fechaExpiracion.toIso8601String()}|${fechaCreacion.toIso8601String()}|$owner|$vecesEscaneado|$vecesIngresado";
   }
 
   // Método para convertir el objeto a un mapa (JSON)
@@ -94,6 +105,8 @@ class QRdinamico extends QREstatico {
       owner: json['owner'],
       fechaExpiracion: DateTime.parse(json['fechaExpiracion']),
       id: json['id'],
+      vecesEscaneado: json['vecesEscaneado'],
+      vecesIngresado: json['vecesIngresado'],
     );
   }
 }
