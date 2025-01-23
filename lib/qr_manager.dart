@@ -10,7 +10,7 @@ class QRManager {
 
   // Método para agregar un QR a la lista de QRs generados
   static Future<void> addGeneratedQR(QREstatico qr, String users) async {
-    if (!generatedQRs.any((existingQR) => existingQR.id == qr.id)) {
+    if (!generatedQRs.any((existingQR) => existingQR.getId() == qr.getId())) {
     
       await QRStorage.addGeneratedQRToFirestore(qr, users); // Espera que Firestore termine
       generatedQRs.add(qr);
@@ -57,7 +57,7 @@ class QRManager {
 
   // Método para eliminar un QR de la lista
   static Future<void> deleteQR(QREstatico qr) async {
-    generatedQRs.removeWhere((existingQR) => existingQR.id == qr.id);
+    generatedQRs.removeWhere((existingQR) => existingQR.getId() == qr.getId());
     await QRStorage.deleteQRFromFirestore(
         qr.getId()); // Elimina del almacenamiento remoto
     //await QRStorage.deleteQRFromFile(qr); // Elimina del almacenamiento local
@@ -71,7 +71,7 @@ class QRManager {
   }
 
   static void remove(QREstatico qr) {
-    generatedQRs.removeWhere((existingQR) => existingQR.id == qr.id);
+    generatedQRs.removeWhere((existingQR) => existingQR.getId() == qr.getId());
   }
 
   static Future<String?> getUsuariosPermitidos(String qrId) async {

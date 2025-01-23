@@ -57,8 +57,8 @@ class _MyQRsPageState extends State<MyQRsPage> {
               itemBuilder: (context, index) {
                 final qr = QRManager.generatedQRs[index];
                 return ListTile(
-                  title: Text(qr.alias),
-                  subtitle: Text("ID: ${qr.id}"),
+                  title: Text(qr.getAlias()),
+                  subtitle: Text("ID: ${qr.getId()}"),
                   onTap: () => _showQR(qr),
                 );
               },
@@ -129,11 +129,11 @@ class _MyQRsPageState extends State<MyQRsPage> {
 
   void _showQRInfo(QREstatico qrparticular) async {
     final alias = qrparticular.getAlias();
-    final url = qrparticular.url;
+    final url = qrparticular.getUrl();
     final formateador = DateFormat('yyyy-MM-dd HH:mm:ss');
-    final creacionFormateada = formateador.format(qrparticular.fechaCreacion);
-    final escaneado = qrparticular.vecesEscaneado;
-    final ingresado = qrparticular.vecesIngresado;
+    final creacionFormateada = formateador.format(qrparticular.getFechaCreacion());
+    final escaneado = qrparticular.getVecesEscaneado();
+    final ingresado = qrparticular.getVecesIngresado();
     String? usuariosPermitidos =
         await QRManager.getUsuariosPermitidos(qrparticular.getId());
     usuariosPermitidos ??= "todos"; // si es nulo asigna "todos", recomendado por compilador
@@ -145,7 +145,7 @@ class _MyQRsPageState extends State<MyQRsPage> {
     String? expiracionFormateada;
     // Comprueba si el QR es del tipo QRDinamico para acceder a la fecha de expiración
     if (qrparticular is QRdinamico) {
-      final expiracion = qrparticular.fechaExpiracion;
+      final expiracion = qrparticular.getFechaExpiracion();
       expiracionFormateada = formateador.format(expiracion);
     }
 

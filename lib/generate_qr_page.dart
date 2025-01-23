@@ -79,7 +79,7 @@ class _GenerateQRPageState extends State<GenerateQRPage> {
           );
 
     // Agregar el QR generado a la lista de QR guardados
-    if (newQR.url != '') {
+    if (newQR.getUrl() != '') {
       await QRManager.addGeneratedQR(newQR, _controllerEmails.text);
       // Imprimir en consola
       print("QR Guardado: ${newQR.toString()}");

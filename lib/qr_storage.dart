@@ -29,7 +29,7 @@ class QRStorage {
       });
 
       // Asignar el ID generado al objeto QR local para que lo puedas usar
-      qr.id = generatedId; // Actualizar el objeto QR con el ID generado
+      qr.setId = generatedId; // Actualizar el objeto QR con el ID generado
 
       // Agregar datos adicionales en una subcolección
       final subCollectionRef = docRef.collection('informacion');

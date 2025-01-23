@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:http/http.dart' as http;
 
 class QrScannerPage extends StatefulWidget {
   @override
@@ -25,8 +24,10 @@ class _QrScannerPageState extends State<QrScannerPage> {
 
       if (scannedValue.contains('finalpoo-turinajorge.web.app/validador/?qr=')) {
         // Obtener el correo electrónico del usuario logueado
+        
         final user = FirebaseAuth.instance.currentUser;
         final email = user?.email ?? "Email no disponible"; // Obtener el email
+        
         print("voy a mandar");
         print(email);
         print(user);
