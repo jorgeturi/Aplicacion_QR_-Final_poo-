@@ -5,6 +5,32 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart' show DefaultFirebaseOptions;
 import 'package:flutter/foundation.dart';
 
+
+
+/*
+  La clase AuthService se encarga de gestionar la autenticación de usuarios en la aplicación utilizando Firebase y Google Sign-In. 
+
+  Principales responsabilidades y funcionalidades:
+  
+  - Inicialización de Firebase:
+    - El método `initializeFirebase` configura Firebase en función de la plataforma actual, utilizando las opciones definidas en `DefaultFirebaseOptions.currentPlatform`.
+
+  - Verificación de la sesión del usuario:
+    - El método `checkIfUserIsLoggedIn` permite verificar si ya existe un usuario autenticado en la sesión actual.
+
+  - Inicio de sesión con Google:
+    - El método `signInWithGoogle` inicia el proceso de autenticación mediante Google Sign-In. 
+    - Dependiendo de la plataforma (web o móvil), se realiza el inicio de sesión de forma silenciosa o mediante una ventana emergente.
+    - Una vez autenticado, se obtiene el token de autenticación de Google y se utiliza para autenticar al usuario en Firebase.
+    - Se asocia el UID del usuario autenticado con su correo electrónico en Firestore, utilizando el modo merge para no sobrescribir datos existentes.
+
+  - Cierre de sesión:
+    - El método `signOut` permite cerrar la sesión del usuario tanto en Firebase como en Google Sign-In.
+
+  En resumen, AuthService abstrae y centraliza la lógica necesaria para la autenticación de usuarios, facilitando la integración de Firebase y Google Sign-In en la aplicación.
+*/
+
+
 class AuthService {
   // Registra el Client ID para Google Sign-In
   GoogleSignIn googleSignIn = GoogleSignIn(

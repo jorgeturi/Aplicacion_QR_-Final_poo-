@@ -1,30 +1,49 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:finalpoo_turina/main.dart';
+import 'package:finalpoo_turina/generate_qr_page.dart'; // Asegúrate de que el path sea correcto
+import 'package:finalpoo_turina/auth_service.dart'; // Asegúrate de que el path sea correcto
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Test GenerateQRPage', (WidgetTester tester) async {
+    // Crea el widget a probar
+    await tester.pumpWidget(MaterialApp(
+      home: GenerateQRPage(),
+    ));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verifica si el widget ha cargado correctamente
+    expect(find.byType(GenerateQRPage), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Verifica si el campo de texto para URL existe
+    expect(find.byType(TextField), findsNWidgets(2)); // Dos TextFields, uno para URL y otro para alias
+
+    // Simula la interacción con los campos de texto
+    await tester.enterText(find.byType(TextField).at(0), 'https://example.com');
+    await tester.enterText(find.byType(TextField).at(1), 'Alias del QR');
+
+    // Simula la activación de la opción de QR Dinámico
+    await tester.tap(find.byType(Checkbox).at(0));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verifica si el campo para el tiempo de validez aparece cuando el QR es dinámico
+    expect(find.byType(TextField), findsNWidgets(3)); // Ahora debe haber un tercer TextField para tiempo
+
+    // Ingresa el tiempo de validez
+    await tester.enterText(find.byType(TextField).at(2), '30');
+    await tester.pump();
+
+    // Simula la acción de presionar el botón para guardar el QR
+    await tester.tap(find.text('Guardar QR'));
+    await tester.pump();
+
+    // Verifica si el mensaje de error aparece si faltan campos obligatorios
+    expect(find.text('Por favor, complete todos los campos.'), findsOneWidget);
+
+    // Asegúrate de probar con datos completos
+    await tester.enterText(find.byType(TextField).at(1), 'Nuevo Alias');
+    await tester.tap(find.text('Guardar QR'));
+    await tester.pump();
+
+    // Aquí podrías verificar si la función de guardado del QR se ejecutó correctamente
+    // También puedes comprobar que la navegación o acciones posteriores ocurrieron como se espera
   });
 }

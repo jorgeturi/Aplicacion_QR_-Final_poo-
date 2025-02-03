@@ -1,3 +1,7 @@
+/**  
+ * Estas clases definen el modelo de datos para los códigos QR en la aplicación, diferenciando entre QR estáticos y QR dinámicos.
+ */
+
 class QREstatico {
   final String _url; // Atributo privado
   final String _alias; // Atributo privado
@@ -99,7 +103,7 @@ class QRdinamico extends QREstatico {
     required String alias,
     required DateTime fechaCreacion,
     required String owner,
-    required fechaExpiracion,
+    required DateTime fechaExpiracion,
     required String id,
     required String vecesEscaneado,
     required String vecesIngresado,

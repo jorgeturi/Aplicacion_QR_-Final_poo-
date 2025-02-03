@@ -6,6 +6,11 @@ import 'my_qrs_page.dart';
 import 'boton_flotante.dart';
 import 'logeo.dart';
 
+/*
+  Esta pantalla principal (pantalla_principal) actúa como el menú de inicio de la aplicación, 
+  ofreciendo acceso a las principales funcionalidades mediante botones y animaciones. 
+*/ 
+
 class pantalla_principal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

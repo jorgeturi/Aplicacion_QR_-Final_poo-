@@ -5,6 +5,12 @@ import 'package:path_provider/path_provider.dart';
 import 'qr_clases.dart';
 import 'dart:convert';
 
+/*
+  La clase QRStorage se encarga de gestionar el almacenamiento y la sincronización de los códigos QR generados,
+  tanto en Firestore (almacenamiento en la nube) como en el sistema de archivos local (almacenamiento persistente en el dispositivo).
+*/
+
+
 class QRStorage {
   // Función para agregar un QR generado a Firestore
  static Future<void> addGeneratedQRToFirestore(QREstatico qr, String? users) async {

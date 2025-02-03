@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Estilos para usar en la app
 
 class AppColors {
   static const black = Color.fromARGB(255, 0, 0, 0);
