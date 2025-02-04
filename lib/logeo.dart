@@ -6,6 +6,11 @@ import 'package:local_auth/local_auth.dart';
 import 'package:flutter/foundation.dart';
 
 
+/*
+  Este código implementa la interfaz de usuario y la lógica para la pantalla de inicio de sesión de la aplicación,
+  integrando autenticación con Google (usando Firebase Authentication) y autenticación biométrica (usando Local Authentication).
+*/
+
 class Log_page extends StatefulWidget {
   @override
   _Log_pageState createState() => _Log_pageState();

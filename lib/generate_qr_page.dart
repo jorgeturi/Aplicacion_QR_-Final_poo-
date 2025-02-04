@@ -5,6 +5,15 @@ import 'my_qrs_page.dart'; //para mostrar los QR guardados
 import 'qr_clases.dart';
 import 'auth_service.dart';
 
+/*
+  Esta pantalla, "GenerateQRPage", permite al usuario generar y guardar un código QR en la aplicación. 
+  La funcionalidad principal de la pantalla es recibir datos de entrada (como URL, alias y, opcionalmente, 
+  configuración para un QR dinámico) y generar un objeto QR (estático o dinámico) que luego se guarda y se 
+  añade a la lista de QR generados administrada por QRManager. Además, se integra la verificación de usuario 
+  mediante AuthService para asegurar la sincronización con la cuenta autenticada (o notificar al usuario en caso 
+  de no estar logueado).
+*/
+
 class GenerateQRPage extends StatefulWidget {
   @override
   _GenerateQRPageState createState() => _GenerateQRPageState();

@@ -2,6 +2,8 @@ import 'qr_clases.dart';
 import 'qr_storage.dart';
 import 'package:flutter/foundation.dart'; //para el manejo de la lista
 
+// Clase que gestiona la creación, almacenamiento y eliminación de códigos QR, integrando Firestore y almacenamiento local.
+
 class QRManager {
   static List<QREstatico> _generatedQRs = [];
 
@@ -21,31 +23,24 @@ class QRManager {
 
   // Método para cargar todos los QRs desde Firestore y archivos
   static Future<void> loadAllQRs() async {
-    print("Cargando todos los QRs..."); // Mensaje de depuración
+    print("Cargando todos los QRs..."); 
     
-    final fileQRs =
-        <QREstatico>[]; // Lista para almacenar los QRs desde el archivo
-    final firestoreQRs =
-        await QRStorage.loadQRsFromFirestore(); // Cargar QRs desde Firestore
-    print("de firestore tengo");
-    print("");
-    print(firestoreQRs);
+    final fileQRs = <QREstatico>[]; // Lista QRs desde el archivo
+    final firestoreQRs = await QRStorage.loadQRsFromFirestore(); // QRs desde Firestore
+    
+    await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo a la lista 
+   
+    final allQRsMap = <String, QREstatico>{}; // Map para evitar duplicados
 
-    await QRStorage.loadQRsFromFile(fileQRs); // Cargar QRs desde el archivo
-    print("de farchivo tengo");
-    print("");
-    print(fileQRs);
-    final allQRsMap =
-        <String, QREstatico>{}; // Usamos un Map para evitar duplicados
-
-    // Combinamos los QRs de los dos orígenes y evitamos duplicados
-    for (var qr in [...fileQRs, ...firestoreQRs]) {
+    // Combinamos los QRs de los dos origenes y se recorre todo con un for, si no hay algo nulo se mete a listado final
+    for (var qr in [...fileQRs, ...firestoreQRs]) {  // ... (spread operator) desempaqueta listas dentro de otra lista
       if (qr != null) {
         allQRsMap[qr.getId()] = qr; // Insertamos en el mapa por ID
+        // clave id, valor el qr
       }
     }
     
-    final allQRs = allQRsMap.values.toList(); // Lista final sin duplicados
+    final allQRs = allQRsMap.values.toList(); // para llevarlos a una lista
 
     if (!listEquals(allQRs, _generatedQRs)) {
       _generatedQRs = allQRs;
@@ -54,6 +49,7 @@ class QRManager {
       print("Los QRs ya están actualizados.");
     }
   }
+
 
   // Método para eliminar un QR de la lista
   static Future<void> deleteQR(QREstatico qr) async {

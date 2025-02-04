@@ -1,4 +1,4 @@
-/**  
+/* 
  * Estas clases definen el modelo de datos para los códigos QR en la aplicación, diferenciando entre QR estáticos y QR dinámicos.
  */
 

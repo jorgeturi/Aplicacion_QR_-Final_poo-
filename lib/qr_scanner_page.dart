@@ -3,6 +3,9 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// Página para escanear códigos QR y procesar su contenido, incluyendo la apertura de enlaces y validación con Firebase.
+
+
 class QrScannerPage extends StatefulWidget {
   @override
   _QrScannerPageState createState() => _QrScannerPageState();

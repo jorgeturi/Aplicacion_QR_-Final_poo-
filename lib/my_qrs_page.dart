@@ -6,10 +6,21 @@ import 'qr_clases.dart';
 import 'qr_manager.dart';
 import 'package:intl/intl.dart';
 
+
+/*
+  Este código implementa una pantalla en Flutter para gestionar y visualizar los códigos QR generados por la aplicación. 
+  Se encarga de mostrar una lista de QR, permitir su actualización, mostrar detalles de cada QR, agregar información adicional, 
+  e incluso eliminar un QR. Además, interactúa con el QRManager, que centraliza la lógica de gestión, almacenamiento y sincronización 
+  (por ejemplo, con Firestore o almacenamiento local).
+*/
+
 class MyQRsPage extends StatefulWidget {
   @override
   _MyQRsPageState createState() => _MyQRsPageState();
 }
+//createState() es un método obligatorio en los StatefulWidget.
+//Devuelve una instancia de la clase _MyQRsPageState, que es donde se manejará el estado.
+//=> es una función de una sola línea (equivalente a { return _MyQRsPageState(); })
 
 class _MyQRsPageState extends State<MyQRsPage> {
   @override
@@ -126,6 +137,8 @@ class _MyQRsPageState extends State<MyQRsPage> {
       ),
     );
   }
+
+ 
 
   void _showQRInfo(QREstatico qrparticular) async {
     final alias = qrparticular.getAlias();
