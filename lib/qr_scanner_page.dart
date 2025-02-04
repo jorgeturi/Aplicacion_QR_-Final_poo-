@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 // Página para escanear códigos QR y procesar su contenido, incluyendo la apertura de enlaces y validación con Firebase.
 
-
 class QrScannerPage extends StatefulWidget {
   @override
   _QrScannerPageState createState() => _QrScannerPageState();
@@ -25,30 +24,22 @@ class _QrScannerPageState extends State<QrScannerPage> {
       // Construir la URL a partir del valor escaneado
       Uri url = Uri.parse(scannedValue);
 
-      if (scannedValue.contains('finalpoo-turinajorge.web.app/validador/?qr=')) {
+      if (scannedValue
+          .contains('finalpoo-turinajorge.web.app/validador/?qr=')) {
         // Obtener el correo electrónico del usuario logueado
-        
+
         final user = FirebaseAuth.instance.currentUser;
         final email = user?.email ?? "Email no disponible"; // Obtener el email
-        
+
         print("voy a mandar");
         print(email);
         print(user);
 
         url = url.replace(queryParameters: {
-        ...url.queryParameters, // Mantiene los parámetros existentes
-        'email': email,         // Agrega el parámetro 'email'
+          ...url.queryParameters, // Mantiene los parámetros existentes
+          'email': email, // Agrega el parámetro 'email'
         });
-
-
       }
-
-
-
-
-
-
-
 
       // Comprobar si se puede abrir la URL
       await launchUrl(url, mode: LaunchMode.externalApplication);
@@ -86,7 +77,13 @@ class _QrScannerPageState extends State<QrScannerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Expanded(child : Text('Escanea tu código QR'))),
+      appBar: AppBar(
+        title: FittedBox(
+          fit: BoxFit.scaleDown, // Ajusta el texto sin desbordar
+          child: Text('Escanea tu código QR'),
+        ),
+        centerTitle: true, // Centra el texto
+      ),
       body: Column(
         children: <Widget>[
           Expanded(
