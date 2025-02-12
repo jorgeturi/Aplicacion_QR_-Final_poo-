@@ -5,6 +5,7 @@ import 'generate_qr_page.dart';
 import 'my_qrs_page.dart';
 import 'boton_flotante.dart';
 import 'logeo.dart';
+import 'archivo_conversor.dart';
 
 /*
   Esta pantalla principal (pantalla_principal) actúa como el menú de inicio de la aplicación, 
@@ -24,7 +25,7 @@ class pantalla_principal extends StatelessWidget {
         ],
       ),
       ),
-      floatingActionButton: boton_flotante(),
+      floatingActionButton: boton_flotante(), 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -51,13 +52,14 @@ class opciones extends StatelessWidget {
           IconButtonWithText(
             texto: 'Mi cuenta',
             icono: Icons.person,
+            
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => Log_page()), 
+                MaterialPageRoute(builder: (context) => Log_page()), 
               );
             },
+            
           ),
           SizedBox(height: 20),
           boton(
@@ -75,6 +77,15 @@ class opciones extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => MyQRsPage()),
+              );
+            },
+          ),
+          boton(
+            texto: 'Compartir archivo',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => QRGeneratorScreen()),
               );
             },
           ),
